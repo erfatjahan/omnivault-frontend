@@ -86,7 +86,7 @@ const ProfilePanel = () => {
         <div className="flex-1 overflow-y-auto py-5 pr-1 space-y-6">
           <div className="text-center mb-6">
             <img
-              src={authUser?.avatar?.url || "/avatar-holder.avif"}
+              src={authUser?.avatar?.url || "/default_avatr.png"}
               alt={authUser?.name}
               className="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-[#9c5b6f]/40 object-cover"
             />
