@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, LogOut, Upload, Eye, EyeOff, User, Lock, Loader2 } from "lucide-react";
+import { X, LogOut, Upload, Eye, EyeOff, User, Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { logout, updatePassword, updateProfile } from "../../store/slices/authSlice";
@@ -16,17 +16,21 @@ const ProfilePanel = () => {
   const [email, setEmail] = useState(authUser?.email || "");
   const [avatar, setAvatar] = useState(null);
 
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     if (authUser) {
       setName(authUser.name || "");
       setEmail(authUser.email || "");
     }
-  }, [authUser]);
-
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setAvatar(null);
+  }, [authUser, isAuthPopupOpen]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -40,17 +44,35 @@ const ProfilePanel = () => {
     dispatch(updateProfile(formData));
   };
 
-  const handleUpdatePassword = (e) => {
+  const handleUpdatePassword = async (e) => {
     e.preventDefault();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("Please fill in all password fields!");
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       toast.error("New passwords do not match!");
       return;
     }
+
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters!");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("currentPassword", currentPassword);
     formData.append("newPassword", newPassword);
     formData.append("confirmNewPassword", confirmPassword);
-    dispatch(updatePassword(formData));
+
+    const res = await dispatch(updatePassword(formData));
+    if (res?.meta?.requestStatus === "fulfilled" || res?.payload?.success) {
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    }
   };
 
   if (!isAuthPopupOpen || !authUser) return null;
@@ -142,7 +164,11 @@ const ProfilePanel = () => {
             </div>
           )}
 
-          <form onSubmit={handleUpdatePassword} className="space-y-4 pt-4 border-t border-[#ebd7df] dark:border-white/10">
+          <form 
+            onSubmit={handleUpdatePassword} 
+            autoComplete="off"
+            className="space-y-4 pt-4 border-t border-[#ebd7df] dark:border-white/10"
+          >
             <h3 className="text-sm font-bold text-[#5a3240] dark:text-[#cfb0ba]">
               Update Password
             </h3>
@@ -152,6 +178,8 @@ const ProfilePanel = () => {
                 type={showPassword ? "text" : "password"}
                 placeholder="Current Password"
                 value={currentPassword}
+                name="current_password"
+                autoComplete="new-password"
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 className="w-full p-2.5 pr-10 rounded-xl border border-[#e8d5dc] dark:border-white/10 bg-white/70 dark:bg-white/5 text-xs text-foreground outline-none focus:ring-2 focus:ring-[#9c5b6f]/40"
               />
@@ -168,6 +196,8 @@ const ProfilePanel = () => {
               type={showPassword ? "text" : "password"}
               placeholder="New Password"
               value={newPassword}
+              name="new_password"
+              autoComplete="new-password"
               onChange={(e) => setNewPassword(e.target.value)}
               className="w-full p-2.5 rounded-xl border border-[#e8d5dc] dark:border-white/10 bg-white/70 dark:bg-white/5 text-xs text-foreground outline-none focus:ring-2 focus:ring-[#9c5b6f]/40"
             />
@@ -176,6 +206,8 @@ const ProfilePanel = () => {
               type={showPassword ? "text" : "password"}
               placeholder="Confirm New Password"
               value={confirmPassword}
+              name="confirm_new_password"
+              autoComplete="new-password"
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full p-2.5 rounded-xl border border-[#e8d5dc] dark:border-white/10 bg-white/70 dark:bg-white/5 text-xs text-foreground outline-none focus:ring-2 focus:ring-[#9c5b6f]/40"
             />
@@ -198,7 +230,6 @@ const ProfilePanel = () => {
 
         </div>
 
-       
         <div className="pt-4 border-t border-[#ebd7df] dark:border-white/10">
           <button
             type="button"
