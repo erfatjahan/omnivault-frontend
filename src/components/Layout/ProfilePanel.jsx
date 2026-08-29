@@ -40,7 +40,7 @@ const ProfilePanel = () => {
     dispatch(updateProfile(formData));
   };
 
-  const handleUpdatePassword = async (e) => {
+  const handleUpdatePassword = (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       toast.error("New passwords do not match!");
@@ -50,19 +50,7 @@ const ProfilePanel = () => {
     formData.append("currentPassword", currentPassword);
     formData.append("newPassword", newPassword);
     formData.append("confirmNewPassword", confirmPassword);
-
-    try {
-      const response = await dispatch(updatePassword(formData));
-      
-      // পাসওয়ার্ড সফলভাবে আপডেট হলে ইনপুট ফিল্ড ক্লিয়ার হবে
-      if (response?.meta?.requestStatus === "fulfilled" || response?.payload?.success) {
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-      }
-    } catch (error) {
-      // এরর হলে ফিল্ড ক্লিয়ার হবে না
-    }
+    dispatch(updatePassword(formData));
   };
 
   if (!isAuthPopupOpen || !authUser) return null;
@@ -210,6 +198,7 @@ const ProfilePanel = () => {
 
         </div>
 
+       
         <div className="pt-4 border-t border-[#ebd7df] dark:border-white/10">
           <button
             type="button"
