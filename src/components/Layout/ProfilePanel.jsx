@@ -1,12 +1,9 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { X, LogOut, Upload, Eye, EyeOff, User, Lock, Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { logout, updatePassword, updateProfile } from "../../store/slices/authSlice";
 import { toggleAuthPopup } from "../../store/slices/popupSlice";
-
-const DEFAULT_AVATAR =
-  "https://res.cloudinary.com/dxxyl4xnv/image/upload/v1788003882/wsospe2rht8njooknoqr.jpg";
 
 const ProfilePanel = () => {
   const dispatch = useDispatch();
@@ -18,26 +15,6 @@ const ProfilePanel = () => {
   const [name, setName] = useState(authUser?.name || "");
   const [email, setEmail] = useState(authUser?.email || "");
   const [avatar, setAvatar] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(null);
-
-  // Parse avatar safely if returned as string from database
-  const userAvatarUrl = useMemo(() => {
-    if (!authUser?.avatar) return DEFAULT_AVATAR;
-
-    let parsed = authUser.avatar;
-    if (typeof parsed === "string") {
-      try {
-        parsed = JSON.parse(parsed);
-      } catch {
-        return DEFAULT_AVATAR;
-      }
-    }
-
-    if (parsed?.url && !parsed.url.includes("default_avatar.png")) {
-      return parsed.url;
-    }
-    return DEFAULT_AVATAR;
-  }, [authUser?.avatar]);
 
   useEffect(() => {
     if (authUser) {
@@ -45,15 +22,6 @@ const ProfilePanel = () => {
       setEmail(authUser.email || "");
     }
   }, [authUser]);
-
-  // Handle local avatar file selection & live preview
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setAvatar(file);
-      setAvatarPreview(URL.createObjectURL(file));
-    }
-  };
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -72,7 +40,7 @@ const ProfilePanel = () => {
     dispatch(updateProfile(formData));
   };
 
-  const handleUpdatePassword = (e) => {
+  const handleUpdatePassword = async (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       toast.error("New passwords do not match!");
@@ -82,12 +50,19 @@ const ProfilePanel = () => {
     formData.append("currentPassword", currentPassword);
     formData.append("newPassword", newPassword);
     formData.append("confirmNewPassword", confirmPassword);
-    dispatch(updatePassword(formData));
 
-    // Clear password inputs
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      const response = await dispatch(updatePassword(formData));
+      
+      // পাসওয়ার্ড সফলভাবে আপডেট হলে ইনপুট ফিল্ড ক্লিয়ার হবে
+      if (response?.meta?.requestStatus === "fulfilled" || response?.payload?.success) {
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (error) {
+      // এরর হলে ফিল্ড ক্লিয়ার হবে না
+    }
   };
 
   if (!isAuthPopupOpen || !authUser) return null;
@@ -123,13 +98,9 @@ const ProfilePanel = () => {
         <div className="flex-1 overflow-y-auto py-5 pr-1 space-y-6">
           <div className="text-center mb-6">
             <img
-              src={avatarPreview || userAvatarUrl}
-              alt={authUser?.name || "User Avatar"}
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = DEFAULT_AVATAR;
-              }}
-              className="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-[#9c5b6f]/40 object-cover shadow-sm"
+              src={authUser?.avatar?.url || "/avatar-holder.avif"}
+              alt={authUser?.name}
+              className="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-[#9c5b6f]/40 object-cover"
             />
             <h3 className="text-lg font-semibold text-foreground">
               {authUser?.name}
@@ -158,11 +129,11 @@ const ProfilePanel = () => {
               />
               <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#8a3854] dark:text-[#c47790] hover:underline">
                 <Upload className="w-4 h-4" />
-                <span>{avatar ? avatar.name : "Upload Avatar"}</span>
+                <span>Upload Avatar</span>
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handleAvatarChange}
+                  onChange={(e) => setAvatar(e.target.files[0])}
                   className="hidden"
                 />
               </label>
