@@ -20,8 +20,6 @@ const LoginModal = () => {
   } = useSelector((state) => state.auth || {});
 
   const { isAuthPopupOpen } = useSelector((state) => state.popup || { isAuthPopupOpen: false });
-
-  // স্টেটসমূহ
   const [mode, setMode] = useState("signin"); // 'signin' | 'signup' | 'forgot' | 'reset'
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -41,8 +39,15 @@ const LoginModal = () => {
       }
     }
   }, [location.pathname, dispatch, isAuthPopupOpen]);
+  useEffect(() => {
+    if (isAuthPopupOpen) {
+      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+    }
+  }, [isAuthPopupOpen, mode]);
 
-  // submit handelar
+  // submit handler
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -57,14 +62,12 @@ const LoginModal = () => {
       return;
     }
 
-
     if (mode === "reset") {
       if (formData.password !== formData.confirmPassword) {
         toast.error("Passwords do not match!");
         return;
       }
 
- 
       const pathParts = location.pathname.split("/").filter(Boolean);
       const token = pathParts[pathParts.length - 1];
 
@@ -90,7 +93,6 @@ const LoginModal = () => {
       return;
     }
 
-    
     if (mode === "signup" && formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match!");
       return;
@@ -121,7 +123,6 @@ const LoginModal = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-   
       <div
         className="fixed inset-0 bg-black/30 dark:bg-black/60 backdrop-blur-md transition-opacity duration-300 animate-in fade-in"
         onClick={() => dispatch(toggleAuthPopup())}
@@ -129,7 +130,6 @@ const LoginModal = () => {
 
       <div className="relative z-10 w-full max-w-md bg-white/85 dark:bg-[#1c1115]/90 backdrop-blur-2xl rounded-[32px] border border-[#e8d5dc] dark:border-white/10 shadow-2xl p-6 sm:p-8 animate-in zoom-in-95 duration-200">
         
-       
         <button
           type="button"
           onClick={() => dispatch(toggleAuthPopup())}
@@ -138,7 +138,6 @@ const LoginModal = () => {
           <X className="w-4 h-4 stroke-[2.2]" />
         </button>
 
-        
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold tracking-tight text-[#2b141d] dark:text-[#f7eef1]">
             {mode === "signin" && "Welcome Back"}
@@ -154,9 +153,8 @@ const LoginModal = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
           
-        
           {mode === "signup" && (
             <div>
               <label className="block text-xs font-bold text-[#5a3240] dark:text-[#cfb0ba] mb-1 px-1">
@@ -166,6 +164,8 @@ const LoginModal = () => {
                 <User className="absolute left-3.5 w-4 h-4 text-[#8c6772] dark:text-[#b8959f]" />
                 <input
                   type="text"
+                  name="fullNameField"
+                  autoComplete="off"
                   placeholder="Your Name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -185,6 +185,8 @@ const LoginModal = () => {
                 <Mail className="absolute left-3.5 w-4 h-4 text-[#8c6772] dark:text-[#b8959f]" />
                 <input
                   type="email"
+                  name="userEmailField"
+                  autoComplete="off"
                   placeholder="your@email.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -195,7 +197,6 @@ const LoginModal = () => {
             </div>
           )}
 
-       
           {mode !== "forgot" && (
             <div>
               <div className="flex justify-between items-center mb-1 px-1">
@@ -216,6 +217,8 @@ const LoginModal = () => {
                 <Lock className="absolute left-3.5 w-4 h-4 text-[#8c6772] dark:text-[#b8959f]" />
                 <input
                   type={showPassword ? "text" : "password"}
+                  name="userSecretField"
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -242,6 +245,8 @@ const LoginModal = () => {
                 <Lock className="absolute left-3.5 w-4 h-4 text-[#8c6772] dark:text-[#b8959f]" />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
+                  name="userConfirmSecretField"
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
@@ -259,7 +264,6 @@ const LoginModal = () => {
             </div>
           )}
 
-      
           <button
             type="submit"
             disabled={isLoading}
@@ -281,7 +285,6 @@ const LoginModal = () => {
           </button>
         </form>
 
-    
         <div className="mt-5 pt-4 border-t border-[#ebd7df] dark:border-white/10 text-center text-xs text-[#8c6772] dark:text-[#b8959f]">
           {mode === "signin" && (
             <p>
