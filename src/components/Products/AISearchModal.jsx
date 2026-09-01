@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, Search, Bot, ShoppingBag, ArrowRight, AlertCircle } from "lucide-react";
-import axios from "axios";
+import { axiosInstance } from "../../lib/axios";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../store/slices/cartSlice";
@@ -24,15 +24,10 @@ const AISearchModal = ({ isOpen, onClose }) => {
     setResults([]);
 
     try {
-    
-      const response = await axios.post(
-        "http://localhost:4000/api/v1/product/ai-search",
-        { 
-          userPrompt: prompt.trim(),
-          prompt: prompt.trim() 
-        },
-        { withCredentials: true }
-      );
+      const response = await axiosInstance.post("/product/ai-search", {
+        userPrompt: prompt.trim(),
+        prompt: prompt.trim(),
+      });
 
       const responseProducts = response.data?.products || [];
 
@@ -52,7 +47,6 @@ const AISearchModal = ({ isOpen, onClose }) => {
       setLoading(false);
     }
   };
-
 
   const getProductImage = (product) => {
     let images = product?.images;
