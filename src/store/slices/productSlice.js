@@ -5,27 +5,28 @@ import { toast } from "react-toastify";
 // Fetch All Products with filters and pagination
 export const fetchAllProducts = createAsyncThunk(
   "product/fetchAll",
-  async (
-    {
-      availability = "",
-      price = "0-10000",
-      category = "",
-      ratings = "",
-      search = "",
-      page = 1,
-    } = {},
-    thunkAPI
-  ) => {
+  async (params = {}, thunkAPI) => {
     try {
-      const params = new URLSearchParams();
-      if (category) params.append("category", category);
-      if (price) params.append("price", price);
-      if (ratings) params.append("ratings", ratings);
-      if (search) params.append("search", search);
-      if (availability) params.append("availability", availability);
-      if (page) params.append("page", page);
+      const {
+        availability = "",
+        price = "",
+        category = "",
+        ratings = "",
+        search = "",
+        page = 1,
+        limit = 100,
+      } = params;
 
-      const res = await axiosInstance.get(`/product?${params.toString()}`);
+      const queryParams = new URLSearchParams();
+      if (category) queryParams.append("category", category);
+      if (price) queryParams.append("price", price);
+      if (ratings) queryParams.append("ratings", ratings);
+      if (search) queryParams.append("search", search);
+      if (availability) queryParams.append("availability", availability);
+      if (page) queryParams.append("page", page);
+      if (limit) queryParams.append("limit", limit);
+
+      const res = await axiosInstance.get(`/product?${queryParams.toString()}`);
       return res.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -144,10 +145,15 @@ const productSlice = createSlice({
       })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = action.payload.products || [];
+        state.products =
+          action.payload.products ||
+          (Array.isArray(action.payload) ? action.payload : []);
         state.newProducts = action.payload.newProducts || [];
         state.topRatedProducts = action.payload.topRatedProducts || [];
-        state.totalProducts = action.payload.totalProducts || 0;
+        state.totalProducts =
+          action.payload.totalProducts ||
+          action.payload.totalCount ||
+          state.products.length;
       })
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.loading = false;
