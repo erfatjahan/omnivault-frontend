@@ -97,19 +97,21 @@ export const deleteOrder = createAsyncThunk(
   }
 );
 
+const initialState = {
+  orders: [],
+  myOrders: [],
+  fetchingOrders: false,
+  placingOrder: false,
+  updatingOrder: false,
+  finalPrice: null,
+  orderStep: 1,
+  paymentIntent: "",
+  error: null,
+};
+
 const orderSlice = createSlice({
   name: "order",
-  initialState: {
-    orders: [],
-    myOrders: [],
-    fetchingOrders: false,
-    placingOrder: false,
-    updatingOrder: false,
-    finalPrice: null,
-    orderStep: 1,
-    paymentIntent: "",
-    error: null,
-  },
+  initialState,
   reducers: {
     setOrderStep: (state, action) => {
       state.orderStep = action.payload;
@@ -121,14 +123,30 @@ const orderSlice = createSlice({
       state.paymentIntent = "";
     },
     resetOrder: (state) => {
+      state.myOrders = [];
+      state.orders = [];
       state.placingOrder = false;
+      state.fetchingOrders = false;
+      state.updatingOrder = false;
       state.orderStep = 1;
+      state.finalPrice = null;
       state.paymentIntent = "";
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
+      .addCase("auth/logout/fulfilled", () => {
+        try {
+          localStorage.removeItem("shippingInfo");
+          localStorage.removeItem("shippingAddress");
+          localStorage.removeItem("cart");
+        } catch (e) {
+          console.error(e);
+        }
+        return initialState;
+      })
+
       // Fetch Customer Orders (Filtered for Unique IDs)
       .addCase(fetchMyOrders.pending, (state) => {
         state.fetchingOrders = true;
@@ -159,6 +177,12 @@ const orderSlice = createSlice({
       .addCase(placeOrder.fulfilled, (state) => {
         state.placingOrder = false;
         state.orderStep = 3;
+        try {
+          localStorage.removeItem("shippingInfo");
+          localStorage.removeItem("shippingAddress");
+        } catch (e) {
+          console.error(e);
+        }
       })
       .addCase(placeOrder.rejected, (state, action) => {
         state.placingOrder = false;

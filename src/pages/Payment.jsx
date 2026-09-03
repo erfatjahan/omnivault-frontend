@@ -18,7 +18,6 @@ const Payment = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
- 
   const cartState = useSelector((state) => state.cart || {});
   const { authUser } = useSelector((state) => state.auth || {});
 
@@ -46,12 +45,11 @@ const Payment = () => {
     fullName: authUser?.name || authUser?.fullName || "",
     phone: authUser?.phone || "",
     address: "",
-    city: "Chattogram",
-    state: "Chittagong",
+    city: "",
+    state: "",
     country: "Bangladesh",
-    pincode: "4000",
+    pincode: "",
   });
-
 
   const subtotal = cartItems.reduce((acc, item) => {
     const price = Number(item.price ?? item.unit_price ?? 0);
@@ -77,7 +75,6 @@ const Payment = () => {
     setLoading(true);
 
     try {
-     
       const orderPayload = {
         full_name: shippingData.fullName,
         phone: shippingData.phone,
@@ -98,11 +95,9 @@ const Payment = () => {
         })),
       };
 
-     
       const orderRes = await axiosInstance.post("/order/new", orderPayload);
       const orderId = orderRes.data.orderId || orderRes.data.order?.id;
 
-     
       if (paymentMethod === "cod") {
         dispatch(clearCart());
         localStorage.removeItem("cartItems");
@@ -152,9 +147,12 @@ const Payment = () => {
           <ArrowLeft className="w-4 h-4" /> Back to Cart
         </button>
 
-        <form onSubmit={handleProcessOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <form 
+          onSubmit={handleProcessOrder} 
+          autoComplete="off" 
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+        >
           
-       
           <div className="lg:col-span-7 space-y-6">
             
             {/* ১. শিপিং ইনফরমেশন */}
@@ -173,8 +171,10 @@ const Payment = () => {
                     type="text"
                     required
                     name="fullName"
+                    autoComplete="one-time-code"
                     value={shippingData.fullName}
                     onChange={handleInputChange}
+                    placeholder="Receiver's name"
                     className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-[#9c5b6f]"
                   />
                 </div>
@@ -185,8 +185,10 @@ const Payment = () => {
                     type="tel"
                     required
                     name="phone"
+                    autoComplete="one-time-code"
                     value={shippingData.phone}
                     onChange={handleInputChange}
+                    placeholder="017xxxxxxxx"
                     className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-[#9c5b6f]"
                   />
                 </div>
@@ -197,6 +199,7 @@ const Payment = () => {
                     type="text"
                     required
                     name="address"
+                    autoComplete="one-time-code"
                     value={shippingData.address}
                     onChange={handleInputChange}
                     placeholder="House, Road, Area"
@@ -205,11 +208,13 @@ const Payment = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-700 dark:text-rose-100/80">City</label>
+                  <label className="font-semibold text-slate-700 dark:text-rose-100/80">City / District</label>
                   <input
                     type="text"
                     required
                     name="city"
+                    autoComplete="one-time-code"
+                    placeholder="e.g. Dhaka / Chattogram"
                     value={shippingData.city}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-[#9c5b6f]"
@@ -222,6 +227,8 @@ const Payment = () => {
                     type="text"
                     required
                     name="pincode"
+                    autoComplete="one-time-code"
+                    placeholder="Postal Code"
                     value={shippingData.pincode}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-[#9c5b6f]"
@@ -229,8 +236,6 @@ const Payment = () => {
                 </div>
               </div>
             </div>
-
-           
             <div className="p-6 rounded-[32px] bg-white dark:bg-[#150d11] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-4">
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-white/5">
                 Select Payment Method
@@ -297,7 +302,6 @@ const Payment = () => {
 
           </div>
 
-         
           <div className="lg:col-span-5 space-y-6">
             <div className="p-6 sm:p-8 rounded-[32px] bg-white dark:bg-[#150d11] border border-slate-200/80 dark:border-white/10 shadow-lg space-y-6 sticky top-24">
               <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight pb-3 border-b border-slate-100 dark:border-white/10">

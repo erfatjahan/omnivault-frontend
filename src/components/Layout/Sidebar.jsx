@@ -15,6 +15,7 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
+import { resetOrder } from "../../store/slices/orderSlice";
 import { toggleSidebar, toggleAuthPopup, toggleCart } from "../../store/slices/popupSlice";
 
 const Sidebar = () => {
@@ -49,6 +50,19 @@ const Sidebar = () => {
     if (item.type === "cart") {
       dispatch(toggleCart());
     }
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    dispatch(resetOrder());
+    try {
+      localStorage.removeItem("shippingInfo");
+      localStorage.removeItem("shippingAddress");
+      localStorage.removeItem("cart");
+    } catch (e) {
+      console.error(e);
+    }
+    dispatch(toggleSidebar());
   };
 
   if (!isSidebarOpen) return null;
@@ -167,10 +181,7 @@ const Sidebar = () => {
               </div>
 
               <button
-                onClick={() => {
-                  dispatch(logout());
-                  dispatch(toggleSidebar());
-                }}
+                onClick={handleLogout}
                 className="p-2 text-[#8a636f] hover:text-rose-500 dark:text-[#b8959f] dark:hover:text-rose-400 transition active:scale-90 cursor-pointer"
                 title="Logout"
                 aria-label="Logout"
