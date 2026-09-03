@@ -1,8 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialCart = localStorage.getItem("cartItems")
-  ? JSON.parse(localStorage.getItem("cartItems"))
-  : [];
+const initialCart = (() => {
+  try {
+    return localStorage.getItem("cartItems")
+      ? JSON.parse(localStorage.getItem("cartItems"))
+      : [];
+  } catch {
+    return [];
+  }
+})();
 
 const cartSlice = createSlice({
   name: "cart",
@@ -12,7 +18,7 @@ const cartSlice = createSlice({
   reducers: {
     addToCart(state, action) {
       const payload = action.payload;
-    
+
       const product = payload.product || payload;
       const quantity = Number(payload.quantity) || 1;
       const productId = product._id || product.id || product.productId;
@@ -83,8 +89,29 @@ const cartSlice = createSlice({
 
     clearCart(state) {
       state.cart = [];
-      localStorage.removeItem("cartItems");
+      try {
+        localStorage.removeItem("cartItems");
+        localStorage.removeItem("cart");
+      } catch (e) {
+        console.error(e);
+      }
     },
+  },
+  extraReducers: (builder) => {
+    builder.addMatcher(
+      (action) =>
+        typeof action.type === "string" &&
+        action.type.toLowerCase().includes("logout"),
+      (state) => {
+        state.cart = [];
+        try {
+          localStorage.removeItem("cartItems");
+          localStorage.removeItem("cart");
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    );
   },
 });
 
