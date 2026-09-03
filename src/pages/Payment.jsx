@@ -46,7 +46,7 @@ const Payment = () => {
     phone: authUser?.phone || "",
     address: "",
     city: "",
-    state: "",
+    state: shippingData.city,
     country: "Bangladesh",
     pincode: "",
   });
