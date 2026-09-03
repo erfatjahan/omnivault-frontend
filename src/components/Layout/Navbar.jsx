@@ -81,11 +81,7 @@ const Navbar = () => {
     } else if (tab.type === "cart") {
       dispatch(toggleCart());
     } else if (tab.type === "profile") {
-      if (isLoggedIn) {
-        navigate("/profile");
-      } else {
-        dispatch(toggleAuthPopup());
-      }
+      dispatch(toggleAuthPopup());
     } else if (tab.type === "sidebar") {
       dispatch(toggleSidebar());
     }
