@@ -32,11 +32,14 @@ const SearchOverlay = () => {
   const handleSearch = (e) => {
     if (e) e.preventDefault();
     if (searchQuery.trim() !== "") {
+      inputRef.current?.blur();
+
       dispatch(toggleSearchBar());
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
     }
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4">
       <div
@@ -45,24 +48,31 @@ const SearchOverlay = () => {
       />
       <div className="relative z-10 w-full max-w-2xl animate-slide-in-top">
         <div className="bg-white/40 dark:bg-black/35 backdrop-blur-2xl p-6 shadow-2xl shadow-black/5 rounded-[32px] md:rounded-[36px] border border-white/50 dark:border-white/10">
-          
           <div className="flex items-center justify-between pb-3 mb-4 border-b border-black/5 dark:border-white/10">
-            <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-white dark:text-white px-1">
+            <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-800 dark:text-white px-1">
               Search Products
             </h2>
             <button
               onClick={() => dispatch(toggleSearchBar())}
-              className="p-1.5 rounded-xl hover:bg-white/50 dark:hover:bg-white/10 text-[#8c6772] hover:text-[#4a2430] dark:text-[#b8959f] dark:hover:text-[#f7eef1] transition active:scale-90"
+              className="p-1.5 rounded-xl hover:bg-white/50 dark:hover:bg-white/10 text-[#8c6772] hover:text-[#4a2430] dark:text-[#b8959f] dark:hover:text-[#f7eef1] transition active:scale-90 cursor-pointer"
               aria-label="Close Search"
             >
               <X className="w-5 h-5 stroke-[2]" />
             </button>
           </div>
-          <form onSubmit={handleSearch} className="relative flex items-center">
-            <Search className="absolute left-4 w-5 h-5 text-white dark:text-white" />
+
+          <form
+            action=""
+            onSubmit={handleSearch}
+            className="relative flex items-center"
+          >
+            <Search className="absolute left-4 w-5 h-5 text-[#8c6772] dark:text-[#b8959f]" />
             <input
               ref={inputRef}
-              type="text"
+              type="search"
+              inputMode="search"
+              enterKeyHint="search"
+              autoComplete="off"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products, brands, essentials..."
@@ -70,7 +80,7 @@ const SearchOverlay = () => {
             />
             <button
               type="submit"
-              className="absolute right-2 px-4 py-2 bg-[#9c5b6f]/90 hover:bg-[#854b5d] text-white text-xs md:text-sm font-semibold rounded-xl shadow-md shadow-[#9c5b6f]/20 transition active:scale-95 backdrop-blur-md"
+              className="absolute right-2 px-4 py-2 bg-[#9c5b6f]/90 hover:bg-[#854b5d] text-white text-xs md:text-sm font-semibold rounded-xl shadow-md shadow-[#9c5b6f]/20 transition active:scale-95 backdrop-blur-md cursor-pointer"
             >
               Search
             </button>
