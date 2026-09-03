@@ -116,11 +116,20 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border box-border;
   }
 
+  html,
   body {
-    @apply bg-background text-foreground overflow-x-hidden antialiased;
+    @apply bg-background text-foreground antialiased;
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  img,
+  svg,
+  video {
+    @apply max-w-full h-auto;
   }
 }
 
@@ -130,13 +139,13 @@
     @apply backdrop-blur-md bg-[hsla(var(--glass-bg))] border border-[hsla(var(--glass-border))];
     box-shadow: var(--shadow-glass);
   }
-  
+
   .glass-panel {
-    @apply glass rounded-2xl p-6;
+    @apply glass rounded-2xl p-4 sm:p-6;
   }
   
   .glass-card {
-    @apply glass rounded-2xl p-4 hover:shadow-[var(--shadow-elegant)] transition-all duration-300;
+    @apply glass rounded-2xl p-3 sm:p-4 hover:shadow-[var(--shadow-elegant)] transition-all duration-300;
   }
   
   /* Gradient utilities */

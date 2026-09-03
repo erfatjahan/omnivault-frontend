@@ -7,7 +7,7 @@ import {
   Moon,
   Search,
   SlidersHorizontal,
-  LayoutGrid
+  LayoutGrid,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,7 +15,7 @@ import {
   toggleSidebar,
   toggleSearchBar,
   toggleCart,
-  toggleAuthPopup
+  toggleAuthPopup,
 } from "../../store/slices/popupSlice";
 
 const Navbar = () => {
@@ -26,12 +26,10 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  
   const { cart } = useSelector((state) => state.cart || { cart: [] });
   const cartItemsCount =
     cart?.reduce((total, item) => total + (Number(item?.quantity) || 1), 0) || 0;
 
-  
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 15);
@@ -54,7 +52,6 @@ const Navbar = () => {
     { name: "Profile", type: "profile", icon: Fingerprint },
   ];
 
- 
   const handleLogoClick = (e) => {
     e.preventDefault();
     if (location.pathname !== "/") {
@@ -79,7 +76,7 @@ const Navbar = () => {
 
   return (
     <>
-
+      {/* Desktop Header */}
       <header
         className={`hidden md:block sticky top-0 left-0 w-full z-40 transition-all duration-300 border-b backdrop-blur-2xl ${
           isScrolled
@@ -89,11 +86,10 @@ const Navbar = () => {
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="h-20 flex items-center justify-between gap-6">
-            
-           
             <div className="flex items-center gap-4">
               <div className="relative group">
                 <button
+                  type="button"
                   onClick={() => dispatch(toggleSidebar())}
                   className="p-3 rounded-2xl bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-[#754d5a] dark:text-[#cfb0ba] hover:text-[#4a2430] dark:hover:text-white transition-all active:scale-95 border border-slate-200/80 dark:border-white/10 shadow-xs cursor-pointer"
                   aria-label="Toggle Sidebar"
@@ -105,19 +101,17 @@ const Navbar = () => {
                 </span>
               </div>
 
-           
               <Link
                 to="/"
                 onClick={handleLogoClick}
                 className="group inline-flex items-center cursor-pointer select-none"
               >
                 <span className="text-xl font-bold tracking-wider text-slate-900 dark:text-[#f7eef1] uppercase font-mono transition-colors duration-300">
-                  Omnivault<span className="text-[#9c5b6f] font-bold text-2xl group-hover:scale-125 inline-block transition-transform duration-200"></span>
+                  Omnivault
                 </span>
               </Link>
             </div>
 
-          
             <nav className="relative flex items-center bg-white dark:bg-white/5 rounded-full px-3 py-1.5 border border-slate-200/80 dark:border-white/10 shadow-sm shadow-slate-200/30 backdrop-blur-xl gap-1">
               {navTabs.map((tab) => {
                 const Icon = tab.icon;
@@ -133,14 +127,13 @@ const Navbar = () => {
                       <div className="w-5 h-5 flex items-center justify-center relative">
                         <Icon className="w-5 h-5 stroke-[1.9]" />
                         {tab.badge > 0 && (
-                          <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-[#9c5b6f] text-white text-[9px] font-bold flex items-center justify-center shadow-xs">
+                          <span className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-[#9c5b6f] text-white text-[9px] font-bold flex items-center justify-center shadow-xs">
                             {tab.badge}
                           </span>
                         )}
                       </div>
                     </button>
 
-                 
                     <span className="absolute -bottom-8 px-2 py-0.5 rounded-md bg-[#2b171e]/90 text-white text-[10px] font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 shadow-md whitespace-nowrap z-50">
                       {tab.name}
                     </span>
@@ -148,25 +141,25 @@ const Navbar = () => {
                 );
               })}
             </nav>
-
           </div>
         </div>
       </header>
 
-      <div className="md:hidden sticky top-0 left-0 right-0 z-40 bg-white/80 dark:bg-black/40 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/10 px-5 h-16 flex items-center justify-between">
+      {/* Mobile Top Bar */}
+      <div className="md:hidden sticky top-0 left-0 right-0 z-40 bg-white/85 dark:bg-[#120b0e]/90 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/10 px-4 h-16 flex items-center justify-between">
         <Link
           to="/"
           onClick={handleLogoClick}
-          className="text-lg font-bold tracking-wider text-slate-900 dark:text-[#f7eef1] uppercase font-mono cursor-pointer"
+          className="text-lg font-bold tracking-wider text-slate-900 dark:text-[#f7eef1] uppercase font-mono cursor-pointer select-none"
         >
-          Omnivault<span className="text-[#9c5b6f] font-bold text-xl"></span>
+          Omnivault
         </Link>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => dispatch(toggleSearchBar())}
-            className="p-2.5 rounded-full text-slate-600 dark:text-[#cfb0ba] hover:bg-slate-100 dark:hover:bg-white/10 transition active:scale-90"
+            className="p-2.5 rounded-full text-slate-600 dark:text-[#cfb0ba] hover:bg-slate-100 dark:hover:bg-white/10 transition active:scale-90 cursor-pointer"
             aria-label="Search"
           >
             <Search className="w-5 h-5 stroke-[1.9]" />
@@ -175,7 +168,7 @@ const Navbar = () => {
           <button
             type="button"
             onClick={toggleTheme}
-            className="p-2.5 rounded-full text-slate-600 dark:text-[#cfb0ba] hover:bg-slate-100 dark:hover:bg-white/10 transition active:scale-90"
+            className="p-2.5 rounded-full text-slate-600 dark:text-[#cfb0ba] hover:bg-slate-100 dark:hover:bg-white/10 transition active:scale-90 cursor-pointer"
             aria-label="Toggle Theme"
           >
             {theme === "dark" ? (
@@ -187,11 +180,17 @@ const Navbar = () => {
         </div>
       </div>
 
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/85 dark:bg-[#120b0e]/90 backdrop-blur-2xl border-t border-slate-200/80 dark:border-white/10 px-4 py-2 pb-5">
-        <div className="flex items-center justify-around max-w-sm mx-auto">
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#120b0e]/95 backdrop-blur-2xl border-t border-slate-200/80 dark:border-white/10 px-2 py-1.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] shadow-lg shadow-black/10">
+        <div className="flex items-center justify-around max-w-md mx-auto">
           {mobileTabs.map((tab) => {
             const Icon = tab.icon;
-            const isTabActive = tab.path === "/" ? location.pathname === "/" : location.pathname.startsWith(tab.path || "");
+            const isTabActive =
+              tab.path === "/"
+                ? location.pathname === "/"
+                : tab.path
+                ? location.pathname.startsWith(tab.path)
+                : false;
 
             if (tab.type !== "link") {
               return (
@@ -199,18 +198,20 @@ const Navbar = () => {
                   key={tab.name}
                   type="button"
                   onClick={() => handleAction(tab)}
-                  className="relative flex flex-col items-center justify-center p-1.5 text-slate-600 dark:text-[#b8959f] hover:text-[#9c5b6f] dark:hover:text-white transition active:scale-90"
+                  className="flex-1 min-h-[44px] flex flex-col items-center justify-center py-1 text-slate-600 dark:text-[#b8959f] active:scale-95 transition cursor-pointer select-none"
                   aria-label={tab.name}
                 >
-                  <span className="text-[10px] font-medium tracking-tight mb-1">
-                    {tab.name}
-                  </span>
-                  <div className="relative">
+                  <div className="relative mb-0.5">
                     <Icon className="w-5 h-5 stroke-[1.9]" />
                     {tab.badge > 0 && (
-                      <span className="absolute -top-1 -right-1.5 w-2.5 h-2.5 rounded-full bg-[#9c5b6f] ring-2 ring-white dark:ring-black" />
+                      <span className="absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-[#9c5b6f] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-[#120b0e]">
+                        {tab.badge}
+                      </span>
                     )}
                   </div>
+                  <span className="text-[10px] font-medium tracking-tight">
+                    {tab.name}
+                  </span>
                 </button>
               );
             }
@@ -220,26 +221,27 @@ const Navbar = () => {
                 key={tab.name}
                 to={tab.path}
                 onClick={tab.path === "/" ? handleLogoClick : undefined}
-                className={`relative flex flex-col items-center justify-center transition-all duration-300 ${
-                  isTabActive
-                    ? "-translate-y-1 text-[#9c5b6f] dark:text-[#f7eef1]"
-                    : "p-1.5 text-slate-600 dark:text-[#b8959f]"
-                }`}
+                className="flex-1 min-h-[44px] flex flex-col items-center justify-center py-1 transition select-none active:scale-95"
                 aria-label={tab.name}
               >
-                <span className={`text-[10px] tracking-tight mb-1 ${isTabActive ? "font-bold text-[#9c5b6f] dark:text-white" : "font-medium"}`}>
-                  {tab.name}
-                </span>
-
                 <div
-                  className={`flex items-center justify-center transition-all duration-300 ${
+                  className={`flex items-center justify-center transition-all duration-200 ${
                     isTabActive
-                      ? "w-9 h-9 rounded-full bg-[#9c5b6f] text-white shadow-md shadow-[#9c5b6f]/30"
-                      : ""
+                      ? "w-8 h-8 rounded-full bg-[#9c5b6f] text-white shadow-md shadow-[#9c5b6f]/30"
+                      : "text-slate-600 dark:text-[#b8959f]"
                   }`}
                 >
                   <Icon className="w-5 h-5 stroke-[1.9]" />
                 </div>
+                <span
+                  className={`text-[10px] tracking-tight mt-0.5 ${
+                    isTabActive
+                      ? "font-bold text-[#9c5b6f] dark:text-white"
+                      : "font-medium text-slate-600 dark:text-[#b8959f]"
+                  }`}
+                >
+                  {tab.name}
+                </span>
               </Link>
             );
           })}
