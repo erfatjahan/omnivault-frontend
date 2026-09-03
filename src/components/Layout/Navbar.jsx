@@ -230,7 +230,6 @@ const Navbar = () => {
                 </button>
               );
             }
-
             return (
               <Link
                 key={tab.name}

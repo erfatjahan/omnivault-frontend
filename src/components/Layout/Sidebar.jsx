@@ -12,21 +12,26 @@ import {
   LogIn,
   ClipboardList,
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
 import { resetOrder } from "../../store/slices/orderSlice";
+import { clearCart } from "../../store/slices/cartSlice";
 import { toggleSidebar, toggleAuthPopup, toggleCart } from "../../store/slices/popupSlice";
 
 const Sidebar = () => {
   const { authUser } = useSelector((state) => state.auth || {});
   const { isSidebarOpen } = useSelector((state) => state.popup || { isSidebarOpen: false });
-  const { cart = [] } = useSelector((state) => state.cart || {});
+
+  const cartState = useSelector((state) => state.cart || {});
+  const cart = cartState.cart || cartState.cartItems || cartState.items || [];
+  
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const cartItemsCount =
-    cart?.reduce((total, item) => total + (Number(item?.quantity) || 1), 0) || 0;
+    cart?.reduce((total, item) => total + (Number(item?.quantity ?? item?.qty ?? 1) || 1), 0) || 0;
 
   const menuItems = [
     { name: "Home", path: "/", icon: Home, type: "link" },
@@ -52,17 +57,26 @@ const Sidebar = () => {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    dispatch(resetOrder());
+  const handleLogout = async () => {
     try {
-      localStorage.removeItem("shippingInfo");
-      localStorage.removeItem("shippingAddress");
-      localStorage.removeItem("cart");
-    } catch (e) {
-      console.error(e);
+      await dispatch(logout()).unwrap();
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      dispatch(resetOrder());
+      dispatch(clearCart());
+      try {
+        localStorage.removeItem("shippingInfo");
+        localStorage.removeItem("shippingAddress");
+        localStorage.removeItem("cart");
+        localStorage.removeItem("cartItems");
+        localStorage.removeItem("myOrders");
+      } catch (e) {
+        console.error(e);
+      }
+      dispatch(toggleSidebar());
+      navigate("/");
     }
-    dispatch(toggleSidebar());
   };
 
   if (!isSidebarOpen) return null;
@@ -120,7 +134,7 @@ const Sidebar = () => {
                       </span>
                     </div>
                     {item.badge > 0 && (
-                      <span className="text-[10px] font-bold bg-[#9c5b6f] text-white px-2 py-0.5 rounded-full shadow-xs">
+                      <span className="text-[10px] font-bold bg-[#9c5b6f] text-white px-2 py-0.5 rounded-full shadow-sm">
                         {item.badge}
                       </span>
                     )}
