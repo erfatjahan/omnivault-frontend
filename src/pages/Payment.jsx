@@ -46,7 +46,7 @@ const Payment = () => {
     phone: authUser?.phone || "",
     address: "",
     city: "",
-    state: shippingData.city,
+    state: "",
     country: "Bangladesh",
     pincode: "",
   });
@@ -75,15 +75,19 @@ const Payment = () => {
     setLoading(true);
 
     try {
+      const cityVal = shippingData.city?.trim() || "";
+      const stateVal = shippingData.state?.trim() || cityVal || "Bangladesh";
+
       const orderPayload = {
-        full_name: shippingData.fullName,
-        phone: shippingData.phone,
-        address: shippingData.address,
-        city: shippingData.city,
-        state: shippingData.state,
-        country: shippingData.country,
-        pincode: shippingData.pincode,
+        full_name: shippingData.fullName?.trim(),
+        phone: shippingData.phone?.trim(),
+        address: shippingData.address?.trim(),
+        city: cityVal,
+        state: stateVal,
+        country: shippingData.country || "Bangladesh",
+        pincode: shippingData.pincode?.trim(),
         payment_method: paymentMethod === "cod" ? "COD" : "SSLCommerz",
+        payment_type: paymentMethod === "cod" ? "COD" : "SSLCommerz",
         orderedItems: cartItems.map((item) => ({
           product: {
             id: item.id || item.productId || item._id,
@@ -110,19 +114,19 @@ const Payment = () => {
         orderId,
         totalPrice: totalAmount,
         shippingInfo: {
-          fullName: shippingData.fullName,
-          phone: shippingData.phone,
-          address: shippingData.address,
-          city: shippingData.city,
-          state: shippingData.state,
-          pincode: shippingData.pincode,
+          fullName: shippingData.fullName?.trim(),
+          phone: shippingData.phone?.trim(),
+          address: shippingData.address?.trim(),
+          city: cityVal,
+          state: stateVal,
+          country: shippingData.country || "Bangladesh",
+          pincode: shippingData.pincode?.trim(),
         },
       });
 
       if (sslRes.data?.gatewayUrl) {
         dispatch(clearCart());
         localStorage.removeItem("cartItems");
-        
         window.location.href = sslRes.data.gatewayUrl;
       } else {
         toast.error("Failed to connect to SSLCommerz gateway.");
@@ -155,7 +159,7 @@ const Payment = () => {
           
           <div className="lg:col-span-7 space-y-6">
             
-            {/* ১. শিপিং ইনফরমেশন */}
+            {/* 1. Shipping Details */}
             <div className="p-6 sm:p-8 rounded-[32px] bg-white dark:bg-[#150d11] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-white/5">
                 <Truck className="w-4 h-4 text-[#9c5b6f]" />
@@ -236,13 +240,14 @@ const Payment = () => {
                 </div>
               </div>
             </div>
+
+            {/* 2. Payment Method */}
             <div className="p-6 rounded-[32px] bg-white dark:bg-[#150d11] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-4">
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-white/5">
                 Select Payment Method
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
                 {/* SSLCommerz Online */}
                 <div
                   onClick={() => setPaymentMethod("sslcommerz")}
@@ -296,12 +301,12 @@ const Payment = () => {
                     </p>
                   </div>
                 </div>
-
               </div>
             </div>
 
           </div>
 
+          {/* 3. Order Summary */}
           <div className="lg:col-span-5 space-y-6">
             <div className="p-6 sm:p-8 rounded-[32px] bg-white dark:bg-[#150d11] border border-slate-200/80 dark:border-white/10 shadow-lg space-y-6 sticky top-24">
               <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight pb-3 border-b border-slate-100 dark:border-white/10">
