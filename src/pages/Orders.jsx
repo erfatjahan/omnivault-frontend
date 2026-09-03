@@ -14,10 +14,12 @@ import {
   Star,
   X,
   MessageSquare,
-  Send
+  Send,
+  XCircle,
+  Loader2
 } from "lucide-react";
 
-import { fetchMyOrders } from "../store/slices/orderSlice";
+import { fetchMyOrders, cancelMyOrder } from "../store/slices/orderSlice";
 import { addToCart } from "../store/slices/cartSlice";
 import { axiosInstance } from "../lib/axios";
 
@@ -26,13 +28,12 @@ const ORDER_STEPS = ["Pending", "Processing", "Shipped", "Delivered"];
 const MyOrders = () => {
   const dispatch = useDispatch();
 
-  const { myOrders = [], fetchingOrders: loading } = useSelector(
+  const { myOrders = [], fetchingOrders: loading, cancellingOrder } = useSelector(
     (state) => state.order || {}
   );
   
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-
 
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -44,7 +45,6 @@ const MyOrders = () => {
     dispatch(fetchMyOrders());
   }, [dispatch]);
 
- 
   const filteredOrders = useMemo(() => {
     return myOrders.filter((order) => {
       const orderStatus = String(order.order_status || order.status || "Pending").toLowerCase();
@@ -63,7 +63,6 @@ const MyOrders = () => {
     });
   }, [myOrders, filterStatus, searchQuery]);
 
-
   const handleReorder = (items) => {
     if (!items || items.length === 0) return;
     items.forEach((item) => {
@@ -80,6 +79,11 @@ const MyOrders = () => {
     toast.success("All items added to cart!");
   };
 
+  const handleCancelOrder = (orderId) => {
+    if (window.confirm("Are you sure you want to cancel this order? Stock will be restored.")) {
+      dispatch(cancelMyOrder(orderId));
+    }
+  };
 
   const handleOpenReview = (item) => {
     setSelectedProduct(item);
@@ -87,7 +91,6 @@ const MyOrders = () => {
     setComment("");
     setIsReviewOpen(true);
   };
-
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -197,6 +200,7 @@ const MyOrders = () => {
             {filteredOrders.map((order) => {
               const currentStatus = order.order_status || order.status || "Pending";
               const currentStep = getStepIndex(currentStatus);
+              const isPending = currentStatus.toLowerCase() === "pending";
               const isCancelled = currentStatus.toLowerCase() === "cancelled";
               const isDelivered = currentStatus.toLowerCase() === "delivered";
 
@@ -248,6 +252,23 @@ const MyOrders = () => {
                       >
                         {currentStatus}
                       </span>
+
+                      {/* ✅ Cancel Order বাটন (শুধুমাত্র Pending অর্ডারে থাকবে) */}
+                      {isPending && (
+                        <button
+                          type="button"
+                          onClick={() => handleCancelOrder(order.id)}
+                          disabled={cancellingOrder}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 rounded-full text-[11px] font-bold transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                        >
+                          {cancellingOrder ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <XCircle className="w-3.5 h-3.5" />
+                          )}
+                          <span>Cancel Order</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -317,7 +338,6 @@ const MyOrders = () => {
                                 ৳{(Number(item.quantity) * Number(item.price)).toFixed(2)}
                               </p>
 
-                              
                               {isDelivered && (
                                 <button
                                   type="button"
@@ -355,13 +375,13 @@ const MyOrders = () => {
                             <CreditCard className="w-3.5 h-3.5 text-[#9c5b6f]" /> Payment Method
                           </p>
                           <p className="text-xs font-bold text-slate-700 dark:text-slate-200 mt-0.5">
-                            {order.payment_details?.payment_type || "COD"}
+                            {order.payment_method || order.payment_details?.payment_type || "COD"}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2 pt-2">
-                        {order.payment_status === "Unpaid" && order.payment_details?.payment_type === "SSLCommerz" && (
+                        {order.payment_status === "Unpaid" && (order.payment_method === "SSLCommerz" || order.payment_details?.payment_type === "SSLCommerz") && (
                           <button
                             type="button"
                             onClick={() => {
@@ -392,7 +412,7 @@ const MyOrders = () => {
           </div>
         )}
 
-      
+        {/* Review Modal */}
         {isReviewOpen && selectedProduct && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
             <div className="bg-white dark:bg-[#1e293b] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-4">
