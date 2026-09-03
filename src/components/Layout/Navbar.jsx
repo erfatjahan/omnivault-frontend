@@ -25,6 +25,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+
   const cartState = useSelector((state) => state.cart || {});
   const rawCart =
     cartState.cartItems ||
@@ -38,6 +39,7 @@ const Navbar = () => {
     (total, item) => total + (Number(item?.quantity ?? item?.qty ?? 1) || 1),
     0
   );
+
   const { authUser, isAuthenticated } = useSelector((state) => state.auth || {});
   const isLoggedIn = Boolean(authUser || isAuthenticated);
 
@@ -80,7 +82,7 @@ const Navbar = () => {
       dispatch(toggleCart());
     } else if (tab.type === "profile") {
       if (isLoggedIn) {
-        navigate("/orders");
+        navigate("/profile");
       } else {
         dispatch(toggleAuthPopup());
       }
@@ -230,6 +232,7 @@ const Navbar = () => {
                 </button>
               );
             }
+
             return (
               <Link
                 key={tab.name}
