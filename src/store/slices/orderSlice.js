@@ -31,6 +31,21 @@ export const placeOrder = createAsyncThunk(
     }
   }
 );
+export const cancelMyOrder = createAsyncThunk(
+  "order/cancelMyOrder",
+  async (orderId, thunkAPI) => {
+    try {
+      const res = await axiosInstance.put(`/order/cancel/${orderId}`);
+      toast.success(res.data.message || "Order cancelled successfully!");
+      return { orderId, ...res.data };
+    } catch (error) {
+      const message =
+        error.response?.data?.message || "Failed to cancel order.";
+      toast.error(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
 export const createPaymentIntent = createAsyncThunk(
   "order/createPaymentIntent",
@@ -96,12 +111,14 @@ export const deleteOrder = createAsyncThunk(
     }
   }
 );
+
 const initialState = {
   orders: [],
   myOrders: [],
   fetchingOrders: false,
   placingOrder: false,
   updatingOrder: false,
+  cancellingOrder: false,
   finalPrice: null,
   orderStep: 1,
   paymentIntent: "",
@@ -127,6 +144,7 @@ const orderSlice = createSlice({
       state.fetchingOrders = false;
       state.placingOrder = false;
       state.updatingOrder = false;
+      state.cancellingOrder = false;
       state.finalPrice = null;
       state.orderStep = 1;
       state.paymentIntent = "";
@@ -145,7 +163,7 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Customer Orders (Filtered for Unique IDs)
+      // Fetch Customer Orders
       .addCase(fetchMyOrders.pending, (state) => {
         state.fetchingOrders = true;
         state.error = null;
@@ -187,7 +205,30 @@ const orderSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Admin: Fetch All Orders (Filtered for Unique IDs)
+      // User Cancel Order Cases
+      .addCase(cancelMyOrder.pending, (state) => {
+        state.cancellingOrder = true;
+      })
+      .addCase(cancelMyOrder.fulfilled, (state, action) => {
+        state.cancellingOrder = false;
+        const cancelledId = action.payload?.orderId;
+        const updatedOrderData = action.payload?.order;
+
+        state.myOrders = state.myOrders.map((o) => {
+          if (String(o.id) === String(cancelledId)) {
+            return updatedOrderData
+              ? { ...o, ...updatedOrderData }
+              : { ...o, order_status: "Cancelled", payment_status: "Cancelled" };
+          }
+          return o;
+        });
+      })
+      .addCase(cancelMyOrder.rejected, (state, action) => {
+        state.cancellingOrder = false;
+        state.error = action.payload;
+      })
+
+      // Admin: Fetch All Orders
       .addCase(fetchAllOrders.pending, (state) => {
         state.fetchingOrders = true;
         state.error = null;
@@ -248,6 +289,8 @@ const orderSlice = createSlice({
         state.placingOrder = false;
         state.error = action.payload;
       })
+
+      // Logout Matcher
       .addMatcher(
         (action) =>
           typeof action.type === "string" &&
@@ -258,6 +301,7 @@ const orderSlice = createSlice({
           state.fetchingOrders = false;
           state.placingOrder = false;
           state.updatingOrder = false;
+          state.cancellingOrder = false;
           state.finalPrice = null;
           state.orderStep = 1;
           state.paymentIntent = "";
