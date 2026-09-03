@@ -252,8 +252,6 @@ const MyOrders = () => {
                       >
                         {currentStatus}
                       </span>
-
-                      {/* ✅ Cancel Order বাটন (শুধুমাত্র Pending অর্ডারে থাকবে) */}
                       {isPending && (
                         <button
                           type="button"
@@ -352,6 +350,13 @@ const MyOrders = () => {
                           </div>
                         ))}
                       </div>
+
+                      {/* ✅ অনলাইন পেমেন্ট করা থাকলে ক্যান্সেল অর্ডারের নিচে রিফান্ড নোটিশ বক্স */}
+                      {isCancelled && order.payment_status === "Paid" && (
+                        <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-[11px] leading-relaxed">
+                          ℹ️ <strong>Refund Processing:</strong> Your refund of ৳{Number(order.total_price || 0).toFixed(2)} for this cancelled order is currently being processed and will be credited to your {order.payment_method || "original payment method"} within 3–7 business days.
+                        </div>
+                      )}
                     </div>
 
                     {/* Shipping Box */}

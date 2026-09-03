@@ -40,9 +40,6 @@ const Navbar = () => {
     0
   );
 
-  const { authUser, isAuthenticated } = useSelector((state) => state.auth || {});
-  const isLoggedIn = Boolean(authUser || isAuthenticated);
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 15);
