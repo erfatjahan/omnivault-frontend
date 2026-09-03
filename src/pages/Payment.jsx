@@ -67,36 +67,67 @@ const Payment = () => {
 
   const handleProcessOrder = async (e) => {
     e.preventDefault();
+
     if (cartItems.length === 0) {
       toast.error("Your cart is empty! Please add products.");
+      return;
+    }
+    const formElements = e.target.elements;
+    const fullName = (formElements.fullName?.value || shippingData.fullName || "").trim();
+    const phone = (formElements.phone?.value || shippingData.phone || "").trim();
+    const address = (formElements.address?.value || shippingData.address || "").trim();
+    const city = (formElements.city?.value || shippingData.city || "").trim();
+    const pincode = (formElements.pincode?.value || shippingData.pincode || "").trim();
+    const country = "Bangladesh";
+    const state = city || "Bangladesh";
+
+    if (!fullName) {
+      toast.error("Please enter full name.");
+      return;
+    }
+    if (!phone) {
+      toast.error("Please enter phone number.");
+      return;
+    }
+    if (!address) {
+      toast.error("Please enter full street address.");
+      return;
+    }
+    if (!city) {
+      toast.error("Please enter city / district.");
+      return;
+    }
+    if (!pincode) {
+      toast.error("Please enter postal code.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const cityVal = shippingData.city?.trim() || "";
-      const stateVal = shippingData.state?.trim() || cityVal || "Bangladesh";
-
       const orderPayload = {
-        full_name: shippingData.fullName?.trim(),
-        phone: shippingData.phone?.trim(),
-        address: shippingData.address?.trim(),
-        city: cityVal,
-        state: stateVal,
-        country: shippingData.country || "Bangladesh",
-        pincode: shippingData.pincode?.trim(),
+        full_name: fullName,
+        phone: phone,
+        address: address,
+        city: city,
+        state: state,
+        country: country,
+        pincode: pincode,
         payment_method: paymentMethod === "cod" ? "COD" : "SSLCommerz",
         payment_type: paymentMethod === "cod" ? "COD" : "SSLCommerz",
-        orderedItems: cartItems.map((item) => ({
-          product: {
-            id: item.id || item.productId || item._id,
-            name: item.name || item.title || "Product",
-            price: Number(item.price ?? item.unit_price ?? 0),
-            images: [{ url: item.image || (Array.isArray(item.images) ? item.images[0] : "") }],
-          },
-          quantity: Number(item.quantity ?? item.qty ?? 1),
-        })),
+        orderedItems: cartItems.map((item) => {
+          const pId = item.id || item.productId || item._id || item.product_id;
+          return {
+            productId: pId,
+            product: {
+              id: pId,
+              name: item.name || item.title || "Product",
+              price: Number(item.price ?? item.unit_price ?? 0),
+              images: [{ url: item.image || (Array.isArray(item.images) ? item.images[0] : "") }],
+            },
+            quantity: Number(item.quantity ?? item.qty ?? 1),
+          };
+        }),
       };
 
       const orderRes = await axiosInstance.post("/order/new", orderPayload);
@@ -114,13 +145,13 @@ const Payment = () => {
         orderId,
         totalPrice: totalAmount,
         shippingInfo: {
-          fullName: shippingData.fullName?.trim(),
-          phone: shippingData.phone?.trim(),
-          address: shippingData.address?.trim(),
-          city: cityVal,
-          state: stateVal,
-          country: shippingData.country || "Bangladesh",
-          pincode: shippingData.pincode?.trim(),
+          fullName,
+          phone,
+          address,
+          city,
+          state,
+          country,
+          pincode,
         },
       });
 
@@ -132,7 +163,7 @@ const Payment = () => {
         toast.error("Failed to connect to SSLCommerz gateway.");
       }
     } catch (error) {
-      console.error("Order processing error:", error);
+      console.error("Order processing error:", error.response?.data || error);
       toast.error(error.response?.data?.message || "Failed to process order.");
     } finally {
       setLoading(false);
