@@ -123,30 +123,29 @@ const orderSlice = createSlice({
       state.paymentIntent = "";
     },
     resetOrder: (state) => {
-      state.myOrders = [];
       state.orders = [];
-      state.placingOrder = false;
+      state.myOrders = [];
       state.fetchingOrders = false;
+      state.placingOrder = false;
       state.updatingOrder = false;
-      state.orderStep = 1;
       state.finalPrice = null;
+      state.orderStep = 1;
       state.paymentIntent = "";
       state.error = null;
+
+      try {
+        localStorage.removeItem("shippingInfo");
+        localStorage.removeItem("shippingAddress");
+        localStorage.removeItem("cart");
+        localStorage.removeItem("cartItems");
+        localStorage.removeItem("myOrders");
+      } catch (e) {
+        console.error(e);
+      }
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase("auth/logout/fulfilled", () => {
-        try {
-          localStorage.removeItem("shippingInfo");
-          localStorage.removeItem("shippingAddress");
-          localStorage.removeItem("cart");
-        } catch (e) {
-          console.error(e);
-        }
-        return initialState;
-      })
-
       // Fetch Customer Orders (Filtered for Unique IDs)
       .addCase(fetchMyOrders.pending, (state) => {
         state.fetchingOrders = true;
@@ -249,7 +248,33 @@ const orderSlice = createSlice({
       .addCase(createPaymentIntent.rejected, (state, action) => {
         state.placingOrder = false;
         state.error = action.payload;
-      });
+      })
+      .addMatcher(
+        (action) =>
+          typeof action.type === "string" &&
+          action.type.toLowerCase().includes("logout"),
+        (state) => {
+          state.orders = [];
+          state.myOrders = [];
+          state.fetchingOrders = false;
+          state.placingOrder = false;
+          state.updatingOrder = false;
+          state.finalPrice = null;
+          state.orderStep = 1;
+          state.paymentIntent = "";
+          state.error = null;
+
+          try {
+            localStorage.removeItem("shippingInfo");
+            localStorage.removeItem("shippingAddress");
+            localStorage.removeItem("cart");
+            localStorage.removeItem("cartItems");
+            localStorage.removeItem("myOrders");
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      );
   },
 });
 
