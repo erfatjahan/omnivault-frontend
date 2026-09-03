@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleCart } from "../../store/slices/popupSlice";
+import { toggleCart, toggleAuthPopup } from "../../store/slices/popupSlice";
 import {
   addToCart,
   removeFromCart,
@@ -14,10 +14,14 @@ const CartSidebar = () => {
   const dispatch = useDispatch();
   const { isCartOpen } = useSelector((state) => state.popup || {});
   const { cart = [] } = useSelector((state) => state.cart || {});
-
-
-  const safeCart = Array.isArray(cart) ? cart.filter(Boolean) : [];
-
+  const { authUser, isAuthenticated } = useSelector((state) => state.auth || {});
+  const isLoggedIn = Boolean(authUser || isAuthenticated);
+  useEffect(() => {
+    if (!isLoggedIn && Array.isArray(cart) && cart.length > 0) {
+      dispatch(clearCart());
+    }
+  }, [isLoggedIn, cart, dispatch]);
+  const safeCart = isLoggedIn && Array.isArray(cart) ? cart.filter(Boolean) : [];
 
   const subtotal = safeCart.reduce((total, item) => {
     const rawPrice = item?.price ?? item?.product?.price ?? 0;
@@ -34,7 +38,6 @@ const CartSidebar = () => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden select-none">
-
       <div
         onClick={() => dispatch(toggleCart())}
         className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300 cursor-pointer"
@@ -43,7 +46,7 @@ const CartSidebar = () => {
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-md bg-white dark:bg-[#150d11] border-l border-slate-200/80 dark:border-white/10 shadow-2xl flex flex-col justify-between">
           
-
+          {/* Header */}
           <div className="p-6 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-[#9c5b6f]/10 dark:bg-[#9c5b6f]/20 text-[#9c5b6f] dark:text-[#e4a8b8] flex items-center justify-center">
@@ -80,6 +83,7 @@ const CartSidebar = () => {
             </div>
           </div>
 
+          {/* Cart Items / Empty State */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
             {safeCart.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
@@ -91,25 +95,47 @@ const CartSidebar = () => {
                     Your bag is empty
                   </h3>
                   <p className="text-xs text-slate-400 dark:text-rose-200/50 mt-1 max-w-[200px]">
-                    Looks like you haven't added any items to your bag yet.
+                    {!isLoggedIn
+                      ? "Please sign in to view and manage your shopping bag."
+                      : "Looks like you haven't added any items to your bag yet."}
                   </p>
                 </div>
-                <Link
-                  to="/products"
-                  onClick={() => dispatch(toggleCart())}
-                  className="px-6 py-2.5 rounded-2xl bg-[#9c5b6f] text-white text-xs font-bold shadow-md shadow-[#9c5b6f]/25 hover:bg-[#854b5d] transition-all"
-                >
-                  Start Shopping
-                </Link>
+                {!isLoggedIn ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      dispatch(toggleCart());
+                      dispatch(toggleAuthPopup());
+                    }}
+                    className="px-6 py-2.5 rounded-2xl bg-[#9c5b6f] text-white text-xs font-bold shadow-md shadow-[#9c5b6f]/25 hover:bg-[#854b5d] transition-all cursor-pointer"
+                  >
+                    Sign In to Shop
+                  </button>
+                ) : (
+                  <Link
+                    to="/products"
+                    onClick={() => dispatch(toggleCart())}
+                    className="px-6 py-2.5 rounded-2xl bg-[#9c5b6f] text-white text-xs font-bold shadow-md shadow-[#9c5b6f]/25 hover:bg-[#854b5d] transition-all"
+                  >
+                    Start Shopping
+                  </Link>
+                )}
               </div>
             ) : (
               safeCart.map((item, index) => {
                 const prod = item?.product || item || {};
-                const itemId = item?.id || item?._id || prod?.id || prod?._id || `item-${index}`;
+                const validId =
+                  item?.productId ||
+                  item?.id ||
+                  item?._id ||
+                  prod?.productId ||
+                  prod?.id ||
+                  prod?._id ||
+                  `item-${index}`;
                 const itemName = prod?.name || prod?.title || "Untitled Product";
                 const itemPrice = Number(prod?.price ?? item?.price ?? 0);
                 const quantity = Number(item?.quantity) || 1;
-                
+
                 const imageSrc =
                   prod?.images?.[0]?.url ||
                   prod?.images?.[0] ||
@@ -119,7 +145,7 @@ const CartSidebar = () => {
 
                 return (
                   <div
-                    key={itemId}
+                    key={validId}
                     className="flex gap-4 p-3 rounded-2xl bg-slate-50/70 dark:bg-white/[0.03] border border-slate-200/60 dark:border-white/5"
                   >
                     <div className="w-20 h-20 rounded-xl overflow-hidden bg-white dark:bg-white/5 flex-shrink-0 border border-slate-200/50 dark:border-white/5">
@@ -140,7 +166,7 @@ const CartSidebar = () => {
                         </h4>
                         <button
                           type="button"
-                          onClick={() => dispatch(removeFromCart(itemId))}
+                          onClick={() => dispatch(removeFromCart(validId))}
                           className="text-slate-400 hover:text-rose-500 transition-colors p-1 cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -152,11 +178,10 @@ const CartSidebar = () => {
                           {(itemPrice * quantity).toFixed(2)}
                         </span>
 
-
                         <div className="flex items-center gap-2 bg-white dark:bg-white/10 rounded-xl border border-slate-200/80 dark:border-white/10 px-2 py-1">
                           <button
                             type="button"
-                            onClick={() => dispatch(decreaseQuantity(itemId))}
+                            onClick={() => dispatch(decreaseQuantity(validId))}
                             className="text-slate-500 hover:text-slate-900 dark:text-rose-200 dark:hover:text-white cursor-pointer"
                           >
                             <Minus className="w-3 h-3" />
@@ -166,7 +191,16 @@ const CartSidebar = () => {
                           </span>
                           <button
                             type="button"
-                            onClick={() => dispatch(addToCart({ ...item, quantity: 1 }))}
+                            onClick={() =>
+                              dispatch(
+                                addToCart({
+                                  ...item,
+                                  id: validId,
+                                  productId: validId,
+                                  quantity: 1,
+                                })
+                              )
+                            }
                             className="text-slate-500 hover:text-slate-900 dark:text-rose-200 dark:hover:text-white cursor-pointer"
                           >
                             <Plus className="w-3 h-3" />
@@ -180,21 +214,24 @@ const CartSidebar = () => {
             )}
           </div>
 
+          {/* Footer / Summary */}
           {safeCart.length > 0 && (
             <div className="p-6 border-t border-slate-100 dark:border-white/10 space-y-4 bg-slate-50/50 dark:bg-white/[0.02]">
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs text-slate-500 dark:text-rose-200/60 font-medium">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-xs text-slate-500 dark:text-rose-200/60 font-medium">
                   <span>Shipping</span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">Free</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                    {subtotal >= 1500 ? "Free" : "60.00"}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm font-bold text-[#2b141d] dark:text-[#f7eef1] pt-2 border-t border-slate-200/60 dark:border-white/10">
                   <span>Estimated Total</span>
                   <span className="text-[#9c5b6f] dark:text-[#e4a8b8] text-base">
-                    ${subtotal.toFixed(2)}
+                    {(subtotal >= 1500 || subtotal === 0 ? subtotal : subtotal + 60).toFixed(2)}
                   </span>
                 </div>
               </div>
