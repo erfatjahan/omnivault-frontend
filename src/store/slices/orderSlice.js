@@ -96,7 +96,6 @@ export const deleteOrder = createAsyncThunk(
     }
   }
 );
-
 const initialState = {
   orders: [],
   myOrders: [],

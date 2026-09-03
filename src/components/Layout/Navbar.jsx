@@ -25,10 +25,21 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+  const cartState = useSelector((state) => state.cart || {});
+  const rawCart =
+    cartState.cartItems ||
+    cartState.items ||
+    cartState.cart ||
+    (Array.isArray(cartState) ? cartState : []);
 
-  const { cart } = useSelector((state) => state.cart || { cart: [] });
-  const cartItemsCount =
-    cart?.reduce((total, item) => total + (Number(item?.quantity) || 1), 0) || 0;
+  const cartList = Array.isArray(rawCart) ? rawCart : [];
+
+  const cartItemsCount = cartList.reduce(
+    (total, item) => total + (Number(item?.quantity ?? item?.qty ?? 1) || 1),
+    0
+  );
+  const { authUser, isAuthenticated } = useSelector((state) => state.auth || {});
+  const isLoggedIn = Boolean(authUser || isAuthenticated);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,7 +79,11 @@ const Navbar = () => {
     } else if (tab.type === "cart") {
       dispatch(toggleCart());
     } else if (tab.type === "profile") {
-      dispatch(toggleAuthPopup());
+      if (isLoggedIn) {
+        navigate("/orders");
+      } else {
+        dispatch(toggleAuthPopup());
+      }
     } else if (tab.type === "sidebar") {
       dispatch(toggleSidebar());
     }
@@ -91,7 +106,7 @@ const Navbar = () => {
                 <button
                   type="button"
                   onClick={() => dispatch(toggleSidebar())}
-                  className="p-3 rounded-2xl bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-[#754d5a] dark:text-[#cfb0ba] hover:text-[#4a2430] dark:hover:text-white transition-all active:scale-95 border border-slate-200/80 dark:border-white/10 shadow-xs cursor-pointer"
+                  className="p-3 rounded-2xl bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-[#754d5a] dark:text-[#cfb0ba] hover:text-[#4a2430] dark:hover:text-white transition-all active:scale-95 border border-slate-200/80 dark:border-white/10 shadow-sm cursor-pointer"
                   aria-label="Toggle Sidebar"
                 >
                   <SlidersHorizontal className="w-5 h-5 stroke-[1.8]" />
@@ -127,7 +142,7 @@ const Navbar = () => {
                       <div className="w-5 h-5 flex items-center justify-center relative">
                         <Icon className="w-5 h-5 stroke-[1.9]" />
                         {tab.badge > 0 && (
-                          <span className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-[#9c5b6f] text-white text-[9px] font-bold flex items-center justify-center shadow-xs">
+                          <span className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-[#9c5b6f] text-white text-[9px] font-bold flex items-center justify-center shadow-sm">
                             {tab.badge}
                           </span>
                         )}
