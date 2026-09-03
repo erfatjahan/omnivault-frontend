@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
 
-
 export const fetchMyOrders = createAsyncThunk(
   "order/fetchMyOrders",
   async (_, thunkAPI) => {
@@ -48,7 +47,6 @@ export const createPaymentIntent = createAsyncThunk(
   }
 );
 
-
 export const fetchAllOrders = createAsyncThunk(
   "order/fetchAllOrders",
   async (_, thunkAPI) => {
@@ -63,12 +61,11 @@ export const fetchAllOrders = createAsyncThunk(
   }
 );
 
-
 export const updateOrderStatus = createAsyncThunk(
   "order/updateOrderStatus",
   async ({ orderId, status, payment_status }, thunkAPI) => {
     try {
-     const res = await axiosInstance.put(`/order/admin/order/${orderId}`, {
+      const res = await axiosInstance.put(`/order/admin/order/${orderId}`, {
         status,
         order_status: status,
         payment_status,
@@ -103,8 +100,8 @@ export const deleteOrder = createAsyncThunk(
 const orderSlice = createSlice({
   name: "order",
   initialState: {
-    orders: [], 
-    myOrders: [], 
+    orders: [],
+    myOrders: [],
     fetchingOrders: false,
     placingOrder: false,
     updatingOrder: false,
@@ -132,7 +129,7 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Customer Orders
+      // Fetch Customer Orders (Filtered for Unique IDs)
       .addCase(fetchMyOrders.pending, (state) => {
         state.fetchingOrders = true;
         state.error = null;
@@ -140,9 +137,14 @@ const orderSlice = createSlice({
       .addCase(fetchMyOrders.fulfilled, (state, action) => {
         state.fetchingOrders = false;
         const payload = action.payload;
-        state.myOrders = Array.isArray(payload)
+        const incomingOrders = Array.isArray(payload)
           ? payload
           : payload?.myOrders || payload?.orders || [];
+        state.myOrders = incomingOrders.filter(
+          (order, index, self) =>
+            order?.id &&
+            index === self.findIndex((o) => String(o.id) === String(order.id))
+        );
       })
       .addCase(fetchMyOrders.rejected, (state, action) => {
         state.fetchingOrders = false;
@@ -154,12 +156,8 @@ const orderSlice = createSlice({
         state.placingOrder = true;
         state.error = null;
       })
-      .addCase(placeOrder.fulfilled, (state, action) => {
+      .addCase(placeOrder.fulfilled, (state) => {
         state.placingOrder = false;
-        const newOrder = action.payload?.order || action.payload;
-        if (newOrder && typeof newOrder === "object") {
-          state.myOrders = [newOrder, ...state.myOrders];
-        }
         state.orderStep = 3;
       })
       .addCase(placeOrder.rejected, (state, action) => {
@@ -167,7 +165,7 @@ const orderSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Admin: Fetch All Orders
+      // Admin: Fetch All Orders (Filtered for Unique IDs)
       .addCase(fetchAllOrders.pending, (state) => {
         state.fetchingOrders = true;
         state.error = null;
@@ -175,9 +173,15 @@ const orderSlice = createSlice({
       .addCase(fetchAllOrders.fulfilled, (state, action) => {
         state.fetchingOrders = false;
         const payload = action.payload;
-        state.orders = Array.isArray(payload)
+        const incomingOrders = Array.isArray(payload)
           ? payload
           : payload?.orders || payload?.allOrders || [];
+
+        state.orders = incomingOrders.filter(
+          (order, index, self) =>
+            order?.id &&
+            index === self.findIndex((o) => String(o.id) === String(order.id))
+        );
       })
       .addCase(fetchAllOrders.rejected, (state, action) => {
         state.fetchingOrders = false;
@@ -202,7 +206,7 @@ const orderSlice = createSlice({
         state.error = action.payload;
       })
 
-     
+      // Admin: Delete Order
       .addCase(deleteOrder.fulfilled, (state, action) => {
         const deletedId = action.payload?.orderId;
         state.orders = state.orders.filter(
@@ -210,6 +214,7 @@ const orderSlice = createSlice({
         );
       })
 
+      // Stripe Payment Intent
       .addCase(createPaymentIntent.pending, (state) => {
         state.placingOrder = true;
       })
