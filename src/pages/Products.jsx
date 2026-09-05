@@ -32,8 +32,6 @@ const Products = () => {
     totalProducts = 0,
     loading = false,
   } = useSelector((state) => state.product || {});
-
-  // ফিল্টার ও সর্টিং স্টেট
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
@@ -44,7 +42,6 @@ const Products = () => {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  // URL Query Params সিঙ্ক
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const categoryParam = queryParams.get("category");
@@ -54,7 +51,6 @@ const Products = () => {
     if (searchParam) setSearch(searchParam);
   }, [location.search]);
 
-  // ফিল্টার রিকোয়েস্ট ডেসপ্যাচ
   useEffect(() => {
     const query = {};
     if (category) query.category = category;

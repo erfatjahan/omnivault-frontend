@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { ChevronLeft, ChevronRight, Star, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, ShoppingBag, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { addToCart } from "../../store/slices/cartSlice";
 import { toggleCart } from "../../store/slices/popupSlice";
@@ -60,26 +60,38 @@ const ProductSlider = ({ title, products = [] }) => {
             {title}
           </h2>
         </div>
+        <div className="flex items-center gap-3">
+          {/* View All Button - শুধু New Arrivals বা অন্য স্লাইডারেও দেখাবে */}
+          <Link
+            to="/products"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#9c5b6f]/10 hover:bg-[#9c5b6f] text-[#9c5b6f] hover:text-white dark:bg-[#9c5b6f]/20 dark:text-[#e4a8b8] dark:hover:bg-[#9c5b6f] dark:hover:text-white text-xs font-bold transition-all duration-300 active:scale-95 cursor-pointer"
+          >
+            <span>View All</span>
+            <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
+          </Link>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => scroll("left")}
-            className="p-3 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-rose-100 hover:bg-[#9c5b6f] hover:text-white dark:hover:bg-[#9c5b6f] hover:border-transparent transition-all shadow-xs active:scale-90 cursor-pointer"
-            aria-label="Previous Products"
-          >
-            <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scroll("right")}
-            className="p-3 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-rose-100 hover:bg-[#9c5b6f] hover:text-white dark:hover:bg-[#9c5b6f] hover:border-transparent transition-all shadow-xs active:scale-90 cursor-pointer"
-            aria-label="Next Products"
-          >
-            <ChevronRight className="w-4 h-4 stroke-[2.5]" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => scroll("left")}
+              className="p-3 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-rose-100 hover:bg-[#9c5b6f] hover:text-white dark:hover:bg-[#9c5b6f] hover:border-transparent transition-all shadow-xs active:scale-90 cursor-pointer"
+              aria-label="Previous Products"
+            >
+              <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scroll("right")}
+              className="p-3 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-rose-100 hover:bg-[#9c5b6f] hover:text-white dark:hover:bg-[#9c5b6f] hover:border-transparent transition-all shadow-xs active:scale-90 cursor-pointer"
+              aria-label="Next Products"
+            >
+              <ChevronRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          </div>
         </div>
       </div>
+
       <div
         ref={scrollRef}
         className="flex items-stretch gap-6 overflow-x-auto scrollbar-none pb-6 px-1 scroll-smooth"
