@@ -26,6 +26,10 @@ const Footer = () => {
     setNewsletterEmail("");
   };
 
+  const handleScrollTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const footerLinks = {
     company: [
       { name: "About Us", path: "/about" },
@@ -111,6 +115,7 @@ const Footer = () => {
           <div className="col-span-2 space-y-4">
             <Link
               to="/"
+              onClick={handleScrollTop}
               className="inline-flex items-center gap-1 font-mono text-lg sm:text-xl font-black tracking-widest text-[#2b141d] dark:text-[#f7eef1] uppercase"
             >
               Omnivault
@@ -156,6 +161,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <Link
                     to={link.path}
+                    onClick={handleScrollTop}
                     className="text-[#8c6772] hover:text-[#9c5b6f] dark:text-[#b8959f] dark:hover:text-[#f7eef1] transition-colors inline-block"
                   >
                     {link.name}
@@ -175,6 +181,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <Link
                     to={link.path}
+                    onClick={handleScrollTop}
                     className="text-[#8c6772] hover:text-[#9c5b6f] dark:text-[#b8959f] dark:hover:text-[#f7eef1] transition-colors inline-block"
                   >
                     {link.name}
@@ -194,6 +201,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <Link
                     to={link.path}
+                    onClick={handleScrollTop}
                     className="text-[#8c6772] hover:text-[#9c5b6f] dark:text-[#b8959f] dark:hover:text-[#f7eef1] transition-colors inline-block"
                   >
                     {link.name}
