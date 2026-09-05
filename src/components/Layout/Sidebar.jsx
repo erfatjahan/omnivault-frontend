@@ -49,6 +49,10 @@ const Sidebar = () => {
     dispatch(toggleSidebar());
     dispatch(toggleAuthPopup());
   };
+  const handleNavigationClick = () => {
+    dispatch(toggleSidebar());
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleItemClick = (item) => {
     dispatch(toggleSidebar());
@@ -76,6 +80,7 @@ const Sidebar = () => {
       }
       dispatch(toggleSidebar());
       navigate("/");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -95,7 +100,7 @@ const Sidebar = () => {
           <div className="flex items-center justify-between pb-4 mb-3 border-b border-black/5 dark:border-white/10">
             <Link
               to="/"
-              onClick={() => dispatch(toggleSidebar())}
+              onClick={handleNavigationClick}
               className="font-mono text-base md:text-sm font-black tracking-widest text-[#4a2430] dark:text-[#f7eef1] uppercase flex items-center gap-1 select-none"
             >
               Omnivault
@@ -146,7 +151,7 @@ const Sidebar = () => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  onClick={() => dispatch(toggleSidebar())}
+                  onClick={handleNavigationClick}
                   className={`group relative flex items-center gap-3.5 rounded-2xl transition-all duration-200 select-none px-3.5 py-3 ${
                     isActive
                       ? "bg-[#9c5b6f] text-white font-semibold shadow-md shadow-[#9c5b6f]/25"
