@@ -230,7 +230,13 @@ const Navbar = () => {
               <Link
                 key={tab.name}
                 to={tab.path}
-                onClick={tab.path === "/" ? handleLogoClick : undefined}
+                onClick={(e) => {
+                  if (tab.path === "/") {
+                    handleLogoClick(e);
+                  } else {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
                 className="flex-1 min-h-[44px] flex flex-col items-center justify-center py-1 transition select-none active:scale-95"
                 aria-label={tab.name}
               >
