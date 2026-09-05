@@ -61,14 +61,13 @@ const ProductSlider = ({ title, products = [] }) => {
           </h2>
         </div>
         <div className="flex items-center gap-3">
-          {/* View All Button - শুধু New Arrivals বা অন্য স্লাইডারেও দেখাবে */}
           <Link
             to="/products"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#9c5b6f]/10 hover:bg-[#9c5b6f] text-[#9c5b6f] hover:text-white dark:bg-[#9c5b6f]/20 dark:text-[#e4a8b8] dark:hover:bg-[#9c5b6f] dark:hover:text-white text-xs font-bold transition-all duration-300 active:scale-95 cursor-pointer"
           >
             <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
+            {/* <ArrowRight className="w-3.5 h-3.5 stroke-[2]" /> */}
           </Link>
 
           <div className="flex items-center gap-2">
