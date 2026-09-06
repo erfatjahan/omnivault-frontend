@@ -50,7 +50,6 @@ const ProductSlider = ({ title, products = [] }) => {
 
   return (
     <section className="py-12 select-none">
-
       <div className="flex items-end justify-between mb-8 px-1">
         <div>
           <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#9c5b6f] dark:text-[#e4a8b8] block mb-1">
@@ -60,21 +59,23 @@ const ProductSlider = ({ title, products = [] }) => {
             {title}
           </h2>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* ✅ মোবাইল এবং ডেস্কটপ উভয় ডিভাইসেই "View All" বাটন এখন শো করবে */}
           <Link
             to="/products"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#9c5b6f]/10 hover:bg-[#9c5b6f] text-[#9c5b6f] hover:text-white dark:bg-[#9c5b6f]/20 dark:text-[#e4a8b8] dark:hover:bg-[#9c5b6f] dark:hover:text-white text-xs font-bold transition-all duration-300 active:scale-95 cursor-pointer"
+            className="inline-flex items-center gap-1 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#9c5b6f]/10 hover:bg-[#9c5b6f] text-[#9c5b6f] hover:text-white dark:bg-[#9c5b6f]/20 dark:text-[#e4a8b8] dark:hover:bg-[#9c5b6f] dark:hover:text-white text-[11px] sm:text-xs font-bold transition-all duration-300 active:scale-95 cursor-pointer whitespace-nowrap"
           >
             <span>View All</span>
-            {/* <ArrowRight className="w-3.5 h-3.5 stroke-[2]" /> */}
+            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2]" />
           </Link>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => scroll("left")}
-              className="p-3 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-rose-100 hover:bg-[#9c5b6f] hover:text-white dark:hover:bg-[#9c5b6f] hover:border-transparent transition-all shadow-xs active:scale-90 cursor-pointer"
+              className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-rose-100 hover:bg-[#9c5b6f] hover:text-white dark:hover:bg-[#9c5b6f] hover:border-transparent transition-all shadow-xs active:scale-90 cursor-pointer"
               aria-label="Previous Products"
             >
               <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
@@ -82,7 +83,7 @@ const ProductSlider = ({ title, products = [] }) => {
             <button
               type="button"
               onClick={() => scroll("right")}
-              className="p-3 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-rose-100 hover:bg-[#9c5b6f] hover:text-white dark:hover:bg-[#9c5b6f] hover:border-transparent transition-all shadow-xs active:scale-90 cursor-pointer"
+              className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-rose-100 hover:bg-[#9c5b6f] hover:text-white dark:hover:bg-[#9c5b6f] hover:border-transparent transition-all shadow-xs active:scale-90 cursor-pointer"
               aria-label="Next Products"
             >
               <ChevronRight className="w-4 h-4 stroke-[2.5]" />
@@ -113,7 +114,6 @@ const ProductSlider = ({ title, products = [] }) => {
               className="group flex-shrink-0 w-[260px] sm:w-[280px] bg-white dark:bg-white/[0.04] backdrop-blur-xl rounded-[28px] border border-slate-200/80 dark:border-white/10 shadow-sm shadow-slate-200/50 dark:shadow-none hover:shadow-xl dark:hover:border-[#9c5b6f]/40 transition-all duration-300 flex flex-col justify-between overflow-hidden hover:-translate-y-1.5"
             >
               <div>
-
                 <Link
                   to={`/product/${productId}`}
                   className="block relative aspect-square overflow-hidden bg-slate-100 dark:bg-white/5 rounded-t-[28px]"
@@ -160,7 +160,6 @@ const ProductSlider = ({ title, products = [] }) => {
                   </Link>
                 </div>
               </div>
-
 
               <div className="p-5 pt-0 flex items-center justify-between mt-auto">
                 <div>
