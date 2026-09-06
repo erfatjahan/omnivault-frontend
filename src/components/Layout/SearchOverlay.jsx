@@ -89,7 +89,7 @@ const SearchOverlay = () => {
           <div className="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
             <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-800 dark:text-white px-1 flex items-center gap-1.5">
               {/* <Sparkles className="w-3.5 h-3.5 text-[#9c5b6f]" />  */}
-              AI Smart Search
+              Smart Search
             </h2>
             <button
               onClick={() => dispatch(toggleSearchBar())}
