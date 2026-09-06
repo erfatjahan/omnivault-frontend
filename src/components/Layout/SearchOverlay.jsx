@@ -88,7 +88,8 @@ const SearchOverlay = () => {
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
             <h2 className="text-xs font-mono font-bold tracking-widest uppercase text-slate-800 dark:text-white px-1 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#9c5b6f]" /> AI Smart Search
+              {/* <Sparkles className="w-3.5 h-3.5 text-[#9c5b6f]" />  */}
+              AI Smart Search
             </h2>
             <button
               onClick={() => dispatch(toggleSearchBar())}
@@ -113,7 +114,7 @@ const SearchOverlay = () => {
               autoComplete="off"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products (e.g., kids toys, bhalo phone, shirt)..."
+              placeholder="Search products..."
               className="w-full pl-12 pr-28 py-3.5 bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10 rounded-2xl text-sm md:text-base text-[#4a2430] dark:text-[#f7eef1] placeholder-[#8c6772]/60 dark:placeholder-[#b8959f]/60 outline-none focus:ring-2 focus:ring-[#9c5b6f]/50 transition backdrop-blur-md"
             />
             <button
