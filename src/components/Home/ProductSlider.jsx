@@ -61,14 +61,13 @@ const ProductSlider = ({ title, products = [] }) => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* ✅ মোবাইল এবং ডেস্কটপ উভয় ডিভাইসেই "View All" বাটন এখন শো করবে */}
           <Link
             to="/products"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="inline-flex items-center gap-1 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#9c5b6f]/10 hover:bg-[#9c5b6f] text-[#9c5b6f] hover:text-white dark:bg-[#9c5b6f]/20 dark:text-[#e4a8b8] dark:hover:bg-[#9c5b6f] dark:hover:text-white text-[11px] sm:text-xs font-bold transition-all duration-300 active:scale-95 cursor-pointer whitespace-nowrap"
           >
             <span>View All</span>
-            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2]" />
+            {/* <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2]" /> */}
           </Link>
 
           <div className="flex items-center gap-2">
