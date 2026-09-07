@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, LogOut, Upload, Eye, EyeOff, User, Loader2 } from "lucide-react";
+import { X, LogOut, Upload, Eye, EyeOff, User, Loader2, ShieldCheck } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { logout, updatePassword, updateProfile } from "../../store/slices/authSlice";
@@ -22,6 +22,9 @@ const ProfilePanel = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const [step, setStep] = useState(1);
+  const [otp, setOtp] = useState("");
+
   useEffect(() => {
     if (authUser) {
       setName(authUser.name || "");
@@ -32,6 +35,8 @@ const ProfilePanel = () => {
     setConfirmPassword("");
     setAvatar(null);
     setAvatarPreview(null);
+    setStep(1); 
+    setOtp("");
   }, [authUser, isAuthPopupOpen]);
 
   const handleAvatarChange = (e) => {
@@ -61,35 +66,52 @@ const ProfilePanel = () => {
 
     dispatch(updateProfile(formData));
   };
-
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
 
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error("Please fill in all password fields!");
-      return;
+    if (step === 1) {
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        toast.error("Please fill in all password fields!");
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        toast.error("New passwords do not match!");
+        return;
+      }
+
+      if (newPassword.length < 8 || newPassword.length > 16) {
+        toast.error("Password must be between 8 and 16 characters!");
+        return;
+      }
+    } else {
+      if (!otp || otp.length !== 6) {
+        toast.error("Please enter a valid 6-digit OTP!");
+        return;
+      }
     }
 
-    if (newPassword !== confirmPassword) {
-      toast.error("New passwords do not match!");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters!");
-      return;
-    }
     const passwordData = {
       currentPassword,
       newPassword,
       confirmNewPassword: confirmPassword,
+      ...(step === 2 && { otp }),
     };
 
     const res = await dispatch(updatePassword(passwordData));
+    
     if (res?.meta?.requestStatus === "fulfilled" || res?.payload?.success) {
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      if (step === 1) {
+        setStep(2);
+        toast.success(res?.payload?.message || "OTP sent to your email!");
+      } else {
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setOtp("");
+        setStep(1);
+        toast.success("Password updated successfully!");
+      }
     }
   };
 
@@ -194,69 +216,120 @@ const ProfilePanel = () => {
             </button>
           </form>
 
-          {/* Update Password Form */}
+          {/* Update Password Form (2FA / OTP Flow) */}
           <form 
             onSubmit={handleUpdatePassword} 
             autoComplete="off"
             className="space-y-4 pt-4 border-t border-[#ebd7df] dark:border-white/10"
           >
-            <h3 className="text-sm font-bold text-[#5a3240] dark:text-[#cfb0ba]">
-              Update Password
-            </h3>
-            
-            <div className="relative flex items-center">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Current Password"
-                value={currentPassword}
-                name="current_password"
-                autoComplete="new-password"
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full p-2.5 pr-10 rounded-xl border border-[#e8d5dc] dark:border-white/10 bg-white dark:bg-white/5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#9c5b6f]/40"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 text-[#8c6772] hover:text-[#2b141d] dark:hover:text-[#f7eef1] cursor-pointer"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-[#5a3240] dark:text-[#cfb0ba]">
+                Update Password
+              </h3>
+              {step === 2 && (
+                <span className="text-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" /> OTP Verification
+                </span>
+              )}
             </div>
 
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="New Password"
-              value={newPassword}
-              name="new_password"
-              autoComplete="new-password"
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-[#e8d5dc] dark:border-white/10 bg-white dark:bg-white/5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#9c5b6f]/40"
-            />
+            {step === 1 ? (
+              <>
+                <div className="relative flex items-center">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Current Password"
+                    value={currentPassword}
+                    name="current_password"
+                    autoComplete="new-password"
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full p-2.5 pr-10 rounded-xl border border-[#e8d5dc] dark:border-white/10 bg-white dark:bg-white/5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#9c5b6f]/40"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 text-[#8c6772] hover:text-[#2b141d] dark:hover:text-[#f7eef1] cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
 
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Confirm New Password"
-              value={confirmPassword}
-              name="confirm_new_password"
-              autoComplete="new-password"
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-[#e8d5dc] dark:border-white/10 bg-white dark:bg-white/5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#9c5b6f]/40"
-            />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="New Password (8-16 chars)"
+                  value={newPassword}
+                  name="new_password"
+                  autoComplete="new-password"
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-[#e8d5dc] dark:border-white/10 bg-white dark:bg-white/5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#9c5b6f]/40"
+                />
 
-            <button
-              type="submit"
-              disabled={isUpdatingPassword}
-              className="w-full py-2.5 rounded-xl bg-[#9c5b6f] hover:bg-[#854b5d] text-white text-xs font-semibold shadow-md transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isUpdatingPassword ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Updating Password...</span>
-                </>
-              ) : (
-                "Change Password"
-              )}
-            </button>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirm New Password"
+                  value={confirmPassword}
+                  name="confirm_new_password"
+                  autoComplete="new-password"
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-[#e8d5dc] dark:border-white/10 bg-white dark:bg-white/5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#9c5b6f]/40"
+                />
+
+                <button
+                  type="submit"
+                  disabled={isUpdatingPassword}
+                  className="w-full py-2.5 rounded-xl bg-[#9c5b6f] hover:bg-[#854b5d] text-white text-xs font-semibold shadow-md transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {isUpdatingPassword ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Sending OTP...</span>
+                    </>
+                  ) : (
+                    "Send OTP Code"
+                  )}
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-700 dark:text-amber-300">
+                  An OTP has been sent to your registered email. Please enter the 6-digit code below to confirm password update.
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="Enter 6-digit OTP"
+                  value={otp}
+                  maxLength="6"
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="w-full p-3 text-center tracking-widest text-lg font-bold rounded-xl border border-[#e8d5dc] dark:border-white/10 bg-white dark:bg-white/5 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#9c5b6f]/40"
+                />
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="w-1/3 py-2.5 rounded-xl bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-white text-xs font-semibold transition active:scale-95 cursor-pointer"
+                  >
+                    Back
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isUpdatingPassword}
+                    className="w-2/3 py-2.5 rounded-xl bg-[#9c5b6f] hover:bg-[#854b5d] text-white text-xs font-semibold shadow-md transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {isUpdatingPassword ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Verifying...</span>
+                      </>
+                    ) : (
+                      "Verify & Update"
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
           </form>
 
         </div>
