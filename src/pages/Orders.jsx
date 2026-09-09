@@ -17,7 +17,8 @@ import {
   Send,
   XCircle,
   Loader2,
-  FileText
+  FileText,
+  Printer
 } from "lucide-react";
 
 import { fetchMyOrders, cancelMyOrder } from "../store/slices/orderSlice";
@@ -41,6 +42,9 @@ const MyOrders = () => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+  const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
 
   useEffect(() => {
     dispatch(fetchMyOrders());
@@ -86,79 +90,12 @@ const MyOrders = () => {
     }
   };
 
-  const handleDownloadInvoice = (order) => {
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      toast.error("Please allow popups to download the invoice.");
-      return;
-    }
-
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Invoice #${order.id}</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 30px; color: #333; }
-            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #9c5b6f; padding-bottom: 15px; }
-            .header h2 { color: #9c5b6f; margin: 0; }
-            .info-box { display: flex; justify-content: space-between; margin-bottom: 25px; font-size: 13px; line-height: 1.5; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-            th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 12px; }
-            th { background-color: #f8fafc; color: #1e293b; }
-            .total { text-align: right; font-size: 15px; font-weight: bold; color: #9c5b6f; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h2>Official Store Invoice</h2>
-            <p>Order ID: #${order.id}</p>
-          </div>
-          <div class="info-box">
-            <div>
-              <strong>Shipping Address:</strong><br/>
-              ${order.shipping_info?.full_name || "N/A"}<br/>
-              ${order.shipping_info?.address || ""}, ${order.shipping_info?.city || ""}<br/>
-              Phone: ${order.shipping_info?.phone || "N/A"}
-            </div>
-            <div>
-              <strong>Order Date:</strong> ${new Date(order.created_at || Date.now()).toLocaleDateString()}<br/>
-              <strong>Payment Status:</strong> ${order.payment_status || "Unpaid"}<br/>
-              <strong>Payment Method:</strong> ${order.payment_method || "COD"}
-            </div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Item Name</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${order.order_items?.map(item => `
-                <tr>
-                  <td>${item.title}</td>
-                  <td>${item.quantity}</td>
-                  <td>৳${Number(item.price).toFixed(2)}</td>
-                  <td>৳${(Number(item.quantity) * Number(item.price)).toFixed(2)}</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
-          <div class="total">
-            <p>Grand Total: ৳${Number(order.total_price || 0).toFixed(2)}</p>
-          </div>
-          <script>
-            window.onload = function() { window.print(); window.close(); }
-          </script>
-        </body>
-      </html>
-    `;
-
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+  const handleOpenInvoice = (order) => {
+    setSelectedInvoiceOrder(order);
+    setIsInvoiceOpen(true);
+  };
+  const handlePrintInvoice = () => {
+    window.print();
   };
 
   const handleOpenReview = (item) => {
@@ -476,11 +413,13 @@ const MyOrders = () => {
                             Pay Now
                           </button>
                         )}
-                                                <button
+                        
+                        {/* 🌟 View/Download Invoice Button */}
+                        <button
                           type="button"
-                          onClick={() => handleDownloadInvoice(order)}
+                          onClick={() => handleOpenInvoice(order)}
                           className="flex items-center justify-center gap-1 py-2 px-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] font-bold rounded-xl transition-all cursor-pointer"
-                          title="Download Invoice PDF"
+                          title="View Invoice"
                         >
                           <FileText className="w-3.5 h-3.5 text-[#9c5b6f]" />
                           <span>Invoice</span>
@@ -499,6 +438,100 @@ const MyOrders = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* 🌟 INVOICE PREVIEW MODAL */}
+        {isInvoiceOpen && selectedInvoiceOrder && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-[#1e293b] w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6 max-h-[90vh] overflow-y-auto">
+              
+              {/* Modal Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 print:hidden">
+                <h3 className="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-[#9c5b6f]" /> Official Store Invoice
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsInvoiceOpen(false)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Printable Invoice Body */}
+              <div className="space-y-6 text-slate-800 dark:text-slate-100">
+                <div className="text-center pb-4 border-b-2 border-[#9c5b6f]">
+                  <h2 className="text-xl font-black text-[#9c5b6f]">STORE INVOICE</h2>
+                  <p className="text-xs text-slate-400 mt-1">Order ID: #{selectedInvoiceOrder.id}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <strong className="text-slate-400 block mb-1 uppercase tracking-wider text-[10px]">Shipping Address:</strong>
+                    <p className="font-bold">{selectedInvoiceOrder.shipping_info?.full_name || "N/A"}</p>
+                    <p className="text-slate-500 dark:text-slate-400">{selectedInvoiceOrder.shipping_info?.address}, {selectedInvoiceOrder.shipping_info?.city}</p>
+                    <p className="text-slate-500 dark:text-slate-400">Phone: {selectedInvoiceOrder.shipping_info?.phone || "N/A"}</p>
+                  </div>
+                  <div className="text-right">
+                    <strong className="text-slate-400 block mb-1 uppercase tracking-wider text-[10px]">Order Details:</strong>
+                    <p><strong>Date:</strong> {new Date(selectedInvoiceOrder.created_at || Date.now()).toLocaleDateString()}</p>
+                    <p><strong>Payment Status:</strong> <span className="text-emerald-600 font-bold">{selectedInvoiceOrder.payment_status || "Unpaid"}</span></p>
+                    <p><strong>Payment Method:</strong> {selectedInvoiceOrder.payment_method || "COD"}</p>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-400 uppercase text-[10px]">
+                        <th className="p-2.5">Item Name</th>
+                        <th className="p-2.5 text-center">Qty</th>
+                        <th className="p-2.5 text-right">Price</th>
+                        <th className="p-2.5 text-right">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {selectedInvoiceOrder.order_items?.map((item, idx) => (
+                        <tr key={idx}>
+                          <td className="p-2.5 font-bold">{item.title}</td>
+                          <td className="p-2.5 text-center">{item.quantity}</td>
+                          <td className="p-2.5 text-right">৳{Number(item.price).toFixed(2)}</td>
+                          <td className="p-2.5 text-right font-bold">৳{(Number(item.quantity) * Number(item.price)).toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="text-right pt-3 border-t border-slate-200 dark:border-slate-700">
+                  <p className="text-sm font-black text-[#9c5b6f]">
+                    Grand Total: ৳{Number(selectedInvoiceOrder.total_price || 0).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Modal Footer (Action Buttons) */}
+              <div className="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800 print:hidden">
+                <button
+                  type="button"
+                  onClick={() => setIsInvoiceOpen(false)}
+                  className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePrintInvoice}
+                  className="flex-1 py-2.5 bg-[#9c5b6f] hover:bg-[#854b5d] text-white text-xs font-bold rounded-xl shadow-md shadow-[#9c5b6f]/20 transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Print / Save PDF</span>
+                </button>
+              </div>
+
+            </div>
           </div>
         )}
 
