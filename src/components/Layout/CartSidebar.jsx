@@ -9,6 +9,7 @@ import {
   decreaseQuantity,
   clearCart,
 } from "../../store/slices/cartSlice";
+import { toast } from "react-toastify";
 
 const CartSidebar = () => {
   const dispatch = useDispatch();
@@ -16,11 +17,13 @@ const CartSidebar = () => {
   const { cart = [] } = useSelector((state) => state.cart || {});
   const { authUser, isAuthenticated } = useSelector((state) => state.auth || {});
   const isLoggedIn = Boolean(authUser || isAuthenticated);
+
   useEffect(() => {
     if (!isLoggedIn && Array.isArray(cart) && cart.length > 0) {
       dispatch(clearCart());
     }
   }, [isLoggedIn, cart, dispatch]);
+
   const safeCart = isLoggedIn && Array.isArray(cart) ? cart.filter(Boolean) : [];
 
   const subtotal = safeCart.reduce((total, item) => {
@@ -33,6 +36,15 @@ const CartSidebar = () => {
     const rawQuantity = item?.quantity ?? 1;
     return total + (Number(rawQuantity) || 1);
   }, 0);
+
+  const handleRemove = (validId, itemName) => {
+    dispatch(removeFromCart(validId));
+    toast.info(`${itemName || "Item"} removed from bag.`);
+  };
+  const handleClearCart = () => {
+    dispatch(clearCart());
+    toast.warn("Shopping bag cleared.");
+  };
 
   if (!isCartOpen) return null;
 
@@ -66,7 +78,7 @@ const CartSidebar = () => {
               {safeCart.length > 0 && (
                 <button
                   type="button"
-                  onClick={() => dispatch(clearCart())}
+                  onClick={handleClearCart}
                   className="p-2 rounded-xl text-slate-400 hover:text-rose-600 transition-colors text-xs font-semibold cursor-pointer"
                 >
                   Clear
@@ -166,7 +178,7 @@ const CartSidebar = () => {
                         </h4>
                         <button
                           type="button"
-                          onClick={() => dispatch(removeFromCart(validId))}
+                          onClick={() => handleRemove(validId, itemName)}
                           className="text-slate-400 hover:text-rose-500 transition-colors p-1 cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
