@@ -33,7 +33,7 @@ const Navbar = () => {
   const currentUser = authState.user || authState.authUser || null;
   const userRole = currentUser?.role;
 
-  const isAdminOrSuperAdmin = userRole === "admin" || userRole === "SuperAdmin";
+  const isAdminOrSuperAdmin = userRole === "admin" || userRole === "SuperAdmin"||userRole === "Admin";
 
   const cartState = useSelector((state) => state.cart || {});
   const rawCart =
