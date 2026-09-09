@@ -8,6 +8,7 @@ import {
   Search,
   SlidersHorizontal,
   LayoutGrid,
+  LayoutDashboard,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,11 +21,19 @@ import {
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
-  const [isScrolled, setIsScrolled] = useState(false);
+  // const [isScrolled, setIsScrolled] = useState(false);
+    const [setIsScrolled] = useState(false);
+
 
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const authState = useSelector((state) => state.auth || {});
+  const currentUser = authState.user || authState.authUser || null;
+  const userRole = currentUser?.role;
+
+  const isAdminOrSuperAdmin = userRole === "admin" || userRole === "SuperAdmin";
 
   const cartState = useSelector((state) => state.cart || {});
   const rawCart =
@@ -47,11 +56,22 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
   const desktopTabs = [
     { name: "Home", type: "link", path: "/", icon: LayoutGrid },
     { name: "Menu", type: "sidebar", icon: SlidersHorizontal },
     { name: "Search", type: "search", icon: Search },
     { name: "Bag", type: "cart", icon: ShoppingBag, badge: cartItemsCount },
+    ...(isAdminOrSuperAdmin
+      ? [
+          {
+            name: "Dashboard",
+            type: "external-link",
+            url: "https://omnivault-dashboard.vercel.app",
+            icon: LayoutDashboard,
+          },
+        ]
+      : []),
     { name: "Theme", type: "theme", icon: theme === "dark" ? Sun : Moon },
     { name: "Profile", type: "profile", icon: Fingerprint },
   ];
@@ -61,6 +81,16 @@ const Navbar = () => {
     { name: "Menu", type: "sidebar", icon: SlidersHorizontal },
     { name: "Search", type: "search", icon: Search },
     { name: "Bag", type: "cart", icon: ShoppingBag, badge: cartItemsCount },
+    ...(isAdminOrSuperAdmin
+      ? [
+          {
+            name: "Dashboard",
+            type: "external-link",
+            url: "https://omnivault-dashboard.vercel.app",
+            icon: LayoutDashboard,
+          },
+        ]
+      : []),
     { name: "Profile", type: "profile", icon: Fingerprint },
   ];
 
@@ -88,9 +118,9 @@ const Navbar = () => {
 
   return (
     <>
+      {/* Desktop Navbar */}
       <header className="hidden md:flex fixed top-5 left-0 right-0 z-50 justify-center px-6 pointer-events-none">
         <nav className="pointer-events-auto flex items-center gap-1.5 bg-white/90 dark:bg-[#150d11]/95 backdrop-blur-2xl border border-slate-200/80 dark:border-white/10 px-4 py-2 rounded-full shadow-2xl shadow-black/10 transition-all duration-300">
-          
           <Link
             to="/"
             onClick={handleLogoClick}
@@ -108,6 +138,22 @@ const Navbar = () => {
                 tab.type === "link" && tab.path === "/"
                   ? location.pathname === "/"
                   : false;
+
+              if (tab.type === "external-link") {
+                return (
+                  <a
+                    key={tab.name}
+                    href={tab.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative px-3.5 py-2 rounded-full flex items-center gap-2 text-slate-600 dark:text-[#cfb0ba] hover:text-[#9c5b6f] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all duration-300 cursor-pointer text-xs font-semibold"
+                    aria-label={tab.name}
+                  >
+                    <Icon className="w-4 h-4 stroke-[2]" />
+                    <span>{tab.name}</span>
+                  </a>
+                );
+              }
 
               if (tab.type !== "link") {
                 return (
@@ -153,6 +199,7 @@ const Navbar = () => {
         </nav>
       </header>
 
+      {/* Mobile Header */}
       <div className="md:hidden sticky top-0 left-0 right-0 z-40 bg-white/85 dark:bg-[#120b0e]/90 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/10 px-5 h-16 flex items-center justify-between">
         <Link
           to="/"
@@ -178,6 +225,7 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile Bottom Navigation */}
       <div className="md:hidden fixed bottom-4 left-4 right-4 z-50 pointer-events-none">
         <div className="pointer-events-auto bg-white/95 dark:bg-[#150d11]/95 backdrop-blur-2xl border border-slate-200/80 dark:border-white/10 px-3 py-2 rounded-[32px] shadow-2xl shadow-black/20">
           <div className="flex items-center justify-around">
@@ -187,6 +235,26 @@ const Navbar = () => {
                 tab.type === "link" && tab.path === "/"
                   ? location.pathname === "/"
                   : false;
+
+              if (tab.type === "external-link") {
+                return (
+                  <a
+                    key={tab.name}
+                    href={tab.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex flex-col items-center justify-center py-1.5 text-slate-600 dark:text-[#cfb0ba] active:scale-95 transition cursor-pointer select-none"
+                    aria-label={tab.name}
+                  >
+                    <div className="relative mb-1">
+                      <Icon className="w-5 h-5 stroke-[1.9]" />
+                    </div>
+                    <span className="text-[10px] font-medium tracking-tight">
+                      {tab.name}
+                    </span>
+                  </a>
+                );
+              }
 
               if (tab.type !== "link") {
                 return (
