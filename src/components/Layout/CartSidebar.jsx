@@ -10,7 +10,6 @@ import {
   clearCart,
 } from "../../store/slices/cartSlice";
 import { toast } from "react-toastify";
-
 const CartSidebar = () => {
   const dispatch = useDispatch();
   const { isCartOpen } = useSelector((state) => state.popup || {});

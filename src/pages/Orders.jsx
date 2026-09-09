@@ -16,7 +16,8 @@ import {
   MessageSquare,
   Send,
   XCircle,
-  Loader2
+  Loader2,
+  FileText
 } from "lucide-react";
 
 import { fetchMyOrders, cancelMyOrder } from "../store/slices/orderSlice";
@@ -83,6 +84,81 @@ const MyOrders = () => {
     if (window.confirm("Are you sure you want to cancel this order? Stock will be restored.")) {
       dispatch(cancelMyOrder(orderId));
     }
+  };
+
+  const handleDownloadInvoice = (order) => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      toast.error("Please allow popups to download the invoice.");
+      return;
+    }
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Invoice #${order.id}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 30px; color: #333; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #9c5b6f; padding-bottom: 15px; }
+            .header h2 { color: #9c5b6f; margin: 0; }
+            .info-box { display: flex; justify-content: space-between; margin-bottom: 25px; font-size: 13px; line-height: 1.5; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+            th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 12px; }
+            th { background-color: #f8fafc; color: #1e293b; }
+            .total { text-align: right; font-size: 15px; font-weight: bold; color: #9c5b6f; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h2>Official Store Invoice</h2>
+            <p>Order ID: #${order.id}</p>
+          </div>
+          <div class="info-box">
+            <div>
+              <strong>Shipping Address:</strong><br/>
+              ${order.shipping_info?.full_name || "N/A"}<br/>
+              ${order.shipping_info?.address || ""}, ${order.shipping_info?.city || ""}<br/>
+              Phone: ${order.shipping_info?.phone || "N/A"}
+            </div>
+            <div>
+              <strong>Order Date:</strong> ${new Date(order.created_at || Date.now()).toLocaleDateString()}<br/>
+              <strong>Payment Status:</strong> ${order.payment_status || "Unpaid"}<br/>
+              <strong>Payment Method:</strong> ${order.payment_method || "COD"}
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.order_items?.map(item => `
+                <tr>
+                  <td>${item.title}</td>
+                  <td>${item.quantity}</td>
+                  <td>৳${Number(item.price).toFixed(2)}</td>
+                  <td>৳${(Number(item.quantity) * Number(item.price)).toFixed(2)}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+          <div class="total">
+            <p>Grand Total: ৳${Number(order.total_price || 0).toFixed(2)}</p>
+          </div>
+          <script>
+            window.onload = function() { window.print(); window.close(); }
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
   };
 
   const handleOpenReview = (item) => {
@@ -351,7 +427,6 @@ const MyOrders = () => {
                         ))}
                       </div>
 
-                      {/* ✅ অনলাইন পেমেন্ট করা থাকলে ক্যান্সেল অর্ডারের নিচে রিফান্ড নোটিশ বক্স */}
                       {isCancelled && order.payment_status === "Paid" && (
                         <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-[11px] leading-relaxed">
                           ℹ️ <strong>Refund Processing:</strong> Your refund of ৳{Number(order.total_price || 0).toFixed(2)} for this cancelled order is currently being processed and will be credited to your {order.payment_method || "original payment method"} within 3–7 business days.
@@ -401,6 +476,16 @@ const MyOrders = () => {
                             Pay Now
                           </button>
                         )}
+                                                <button
+                          type="button"
+                          onClick={() => handleDownloadInvoice(order)}
+                          className="flex items-center justify-center gap-1 py-2 px-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] font-bold rounded-xl transition-all cursor-pointer"
+                          title="Download Invoice PDF"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-[#9c5b6f]" />
+                          <span>Invoice</span>
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => handleReorder(order.order_items)}
