@@ -24,7 +24,7 @@ import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
-
+import PayForMe from "./pages/PayForMe";
 // Redux Actions
 import { getuser } from "./store/slices/authSlice";
 import { fetchAllProducts } from "./store/slices/productSlice";
@@ -70,6 +70,7 @@ const {products}=useSelector(state=>state.product)
               <Route path="/cart" element={<Cart />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/payment" element={<Payment />} />
+              <Route path="/pay-for-me/:token" element={<PayForMe />} />
               <Route path="/about" element={<About />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/contact" element={<Contact />} />
