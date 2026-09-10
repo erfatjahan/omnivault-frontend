@@ -99,11 +99,11 @@ const Cart = () => {
         shipping_info: shippingInfo,
       };
 
-     const { data } = await axios.post(
-  "https://omnivault-backend-83uu.onrender.com/api/v1/order/pay-for-me/create",
-  payload,
-  { withCredentials: true }
-);
+      const { data } = await axios.post(
+        "https://omnivault-backend-83uu.onrender.com/api/v1/order/pay-for-me/create",
+        payload,
+        { withCredentials: true }
+      );
 
       if (data.success) {
         setPaymentUrl(data.paymentUrl);
@@ -308,7 +308,7 @@ const Cart = () => {
                   className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-xs sm:text-sm text-[#9c5b6f] dark:text-[#e4a8b8] bg-[#9c5b6f]/10 dark:bg-[#9c5b6f]/20 hover:bg-[#9c5b6f]/20 dark:hover:bg-[#9c5b6f]/30 border border-[#9c5b6f]/20 active:scale-95 transition-all cursor-pointer"
                 >
                   <Gift className="w-4 h-4" />
-                  <span>Ask Someone to Pay (Pay-For-Me)</span>
+                  <span>Ask Someone to Pay(Pay-For-Me)</span>
                 </button>
               </div>
             </div>
@@ -465,13 +465,61 @@ const Cart = () => {
               </button>
             </div>
 
+            {/* Social Share Options */}
+            <div className="space-y-2 pt-1">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Share directly via:</p>
+              <div className="grid grid-cols-3 gap-2">
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                    `Hey! Could you please help me pay for my order here: ${paymentUrl}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs transition-all"
+                >
+                  <span>WhatsApp</span>
+                </a>
+
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                    paymentUrl
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold text-xs transition-all"
+                >
+                  <span>Facebook</span>
+                </a>
+
+                {navigator.share && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.share({
+                          title: "Pay For My Order",
+                          text: "Please help me complete the payment for my order:",
+                          url: paymentUrl,
+                        });
+                      } catch (err) {
+                        console.log("Error sharing:", err);
+                      }
+                    }}
+                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-[#9c5b6f]/10 hover:bg-[#9c5b6f]/20 text-[#9c5b6f] dark:text-[#e4a8b8] font-bold text-xs transition-all cursor-pointer"
+                  >
+                    <span>More</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="pt-2 flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowShareModal(false)}
                 className="w-full py-3 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all cursor-pointer"
               >
-                Done / Close
+                Done
               </button>
             </div>
           </div>
