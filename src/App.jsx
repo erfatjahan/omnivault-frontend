@@ -23,8 +23,9 @@ import Payment from "./pages/Payment";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
-import NotFound from "./pages/NotFound";
 import PayForMe from "./pages/PayForMe";
+import NotFound from "./pages/NotFound";
+
 
 // Redux Actions
 import { getuser } from "./store/slices/authSlice";
