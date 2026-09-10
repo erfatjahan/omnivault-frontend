@@ -441,7 +441,6 @@ const MyOrders = () => {
           </div>
         )}
 
-        {/* 🌟 INVOICE PREVIEW MODAL */}
         {isInvoiceOpen && selectedInvoiceOrder && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
             <div className="bg-white dark:bg-[#1e293b] w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6 max-h-[90vh] overflow-y-auto">
