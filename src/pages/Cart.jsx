@@ -99,11 +99,11 @@ const Cart = () => {
         shipping_info: shippingInfo,
       };
 
-      const { data } = await axios.post(
-        "http://localhost:5000/api/v1/orders/pay-for-me/create",
-        payload,
-        { withCredentials: true }
-      );
+     const { data } = await axios.post(
+  "https://omnivault-backend-83uu.onrender.com/api/v1/orders/pay-for-me/create",
+  payload,
+  { withCredentials: true }
+);
 
       if (data.success) {
         setPaymentUrl(data.paymentUrl);
