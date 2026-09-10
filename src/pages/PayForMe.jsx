@@ -16,7 +16,7 @@ const PayForMe = () => {
     const fetchOrderDetails = async () => {
       try {
         const { data } = await axios.get(
-          `http://localhost:5000/api/v1/orders/pay-for-me/${token}`
+          `https://omnivault-backend-83uu.onrender.com/api/v1/orders/pay-for-me/${token}`
         );
         if (data.success) {
           setOrder(data.order);
