@@ -36,7 +36,7 @@ const PayForMe = () => {
       setPaying(true);
       toast.info("Initializing payment gateway...");
       const { data } = await axios.post(
-        `http://localhost:5000/api/v1/orders/pay-for-me/pay/${token}`,
+        `https://omnivault-backend-83uu.onrender.com/api/v1/order/pay-for-me/pay/${token}`,
         {},
         { withCredentials: true }
       );
