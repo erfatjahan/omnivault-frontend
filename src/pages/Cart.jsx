@@ -100,7 +100,7 @@ const Cart = () => {
       };
 
      const { data } = await axios.post(
-  "https://omnivault-backend-83uu.onrender.com/api/v1/orders/pay-for-me/create",
+  "https://omnivault-backend-83uu.onrender.com/api/v1/order/pay-for-me/create",
   payload,
   { withCredentials: true }
 );
