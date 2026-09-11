@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams} from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { ShoppingBag, ShieldCheck, ArrowRight } from "lucide-react";
 
 const PayForMe = () => {
   const { token } = useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
