@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ToastContainer } from "react-toastify";
@@ -26,13 +26,13 @@ import Contact from "./pages/Contact";
 import PayForMe from "./pages/PayForMe";
 import NotFound from "./pages/NotFound";
 
-
 // Redux Actions
 import { getuser } from "./store/slices/authSlice";
 import { fetchAllProducts } from "./store/slices/productSlice";
 
-const App = () => {
+const MainLayout = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { authUser, isCheckingAuth } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -40,7 +40,9 @@ const App = () => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
 
-  if (isCheckingAuth && !authUser) {
+  const isPayForMeRoute = location.pathname.startsWith("/pay-for-me");
+
+  if (isCheckingAuth && !authUser && !isPayForMeRoute) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#120b0e]">
         <div className="w-10 h-10 border-4 border-[#9c5b6f]/30 border-t-[#9c5b6f] rounded-full animate-spin" />
@@ -49,35 +51,46 @@ const App = () => {
   }
 
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <div className="min-h-screen bg-white dark:bg-[#120b0e] text-[#2b141d] dark:text-[#f7eef1] transition-colors duration-300 flex flex-col justify-between">
-          <div>
+    <div className="min-h-screen bg-white dark:bg-[#120b0e] text-[#2b141d] dark:text-[#f7eef1] transition-colors duration-300 flex flex-col justify-between">
+      <div>
+        {/* Hide global navbar and side panels on Pay-For-Me route for complete privacy */}
+        {!isPayForMeRoute && (
+          <>
             <Navbar />
             <Sidebar />
             <SearchOverlay />
             <CartSidebar />
             <ProfilePanel />
             <LoginModal />
+          </>
+        )}
 
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/password/reset/:token" element={<Index />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/payment" element={<Payment />} />
-              <Route path="/pay-for-me/:token" element={<PayForMe />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/password/reset/:token" element={<Index />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/pay-for-me/:token" element={<PayForMe />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
 
-          <Footer />
-        </div>
+      {!isPayForMeRoute && <Footer />}
+    </div>
+  );
+};
+
+const App = () => {
+  return (
+    <ThemeProvider>
+      <BrowserRouter>
+        <MainLayout />
         <ToastContainer position="bottom-right" theme="colored" autoClose={3000} />
       </BrowserRouter>
     </ThemeProvider>
