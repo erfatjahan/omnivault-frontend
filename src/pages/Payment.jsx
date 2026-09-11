@@ -98,7 +98,7 @@ const Payment = () => {
       return;
     }
     if (!pincode) {
-      toast.error("Please enter postal code.");
+      toast.error("Postal code is required.");
       return;
     }
 
@@ -131,8 +131,7 @@ const Payment = () => {
       };
 
       const orderRes = await axiosInstance.post("/order/new", orderPayload);
-      const orderId = orderRes.data.orderId || orderRes.data.order?.id;
-
+      const resData = orderRes.data;
       if (paymentMethod === "cod") {
         dispatch(clearCart());
         localStorage.removeItem("cartItems");
@@ -141,26 +140,14 @@ const Payment = () => {
         return;
       }
 
-      const sslRes = await axiosInstance.post("/payment/ssl-init", {
-        orderId,
-        totalPrice: totalAmount,
-        shippingInfo: {
-          fullName,
-          phone,
-          address,
-          city,
-          state,
-          country,
-          pincode,
-        },
-      });
+      const paymentGatewayUrl = resData.paymentUrl || resData.gatewayUrl;
 
-      if (sslRes.data?.gatewayUrl) {
+      if (paymentGatewayUrl) {
         dispatch(clearCart());
         localStorage.removeItem("cartItems");
-        window.location.href = sslRes.data.gatewayUrl;
+        window.location.href = paymentGatewayUrl;
       } else {
-        toast.error("Failed to connect to SSLCommerz gateway.");
+        toast.error("Failed to retrieve payment gateway URL.");
       }
     } catch (error) {
       console.error("Order processing error:", error.response?.data || error);
