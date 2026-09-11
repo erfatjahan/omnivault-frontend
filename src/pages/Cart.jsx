@@ -341,15 +341,16 @@ const Cart = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    name="full_name"
-                    required
-                    value={shippingInfo.full_name}
-                    onChange={handleInputChange}
-                    placeholder="John Doe"
-                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-xs text-slate-700 dark:text-slate-200 outline-none"
-                  />
+                 <input
+  type="text"
+  name="full_name"
+  required
+  autoComplete="off"
+  value={shippingInfo.full_name}
+  onChange={handleInputChange}
+  placeholder="Full Name"
+  className="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-xs text-slate-700 dark:text-slate-200 outline-none"
+/>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
