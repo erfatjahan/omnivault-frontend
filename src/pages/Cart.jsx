@@ -337,7 +337,7 @@ const Cart = () => {
               </p>
             </div>
 
-            <form onSubmit={handleGeneratePayForMeLink} className="space-y-4">
+          <form onSubmit={handleGeneratePayForMeLink} className="space-y-4" autoComplete="off" noValidate>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
@@ -345,8 +345,9 @@ const Cart = () => {
                     type="text"
                     name="full_name"
                     required
-                    autoComplete="off"
+                    autoComplete="none"
                     data-lpignore="true"
+                    data-form-type="other"
                     value={shippingInfo.full_name}
                     onChange={handleInputChange}
                     placeholder="Full Name"
@@ -359,8 +360,9 @@ const Cart = () => {
                     type="text"
                     name="phone"
                     required
-                    autoComplete="off"
+                    autoComplete="none"
                     data-lpignore="true"
+                    data-form-type="other"
                     value={shippingInfo.phone}
                     onChange={handleInputChange}
                     placeholder="017xxxxxxxx"
@@ -375,8 +377,9 @@ const Cart = () => {
                   type="text"
                   name="address"
                   required
-                  autoComplete="off"
+                  autoComplete="none"
                   data-lpignore="true"
+                  data-form-type="other"
                   value={shippingInfo.address}
                   onChange={handleInputChange}
                   placeholder="House/Road, Area"
@@ -391,8 +394,9 @@ const Cart = () => {
                     type="text"
                     name="city"
                     required
-                    autoComplete="off"
+                    autoComplete="none"
                     data-lpignore="true"
+                    data-form-type="other"
                     value={shippingInfo.city}
                     onChange={handleInputChange}
                     placeholder="Chittagong"
@@ -405,8 +409,9 @@ const Cart = () => {
                     type="text"
                     name="pincode"
                     required
-                    autoComplete="off"
+                    autoComplete="none"
                     data-lpignore="true"
+                    data-form-type="other"
                     value={shippingInfo.pincode}
                     onChange={handleInputChange}
                     placeholder="4000"
