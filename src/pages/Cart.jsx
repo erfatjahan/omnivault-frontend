@@ -24,7 +24,6 @@ const Cart = () => {
 
   const cartItems = Array.isArray(rawItems) ? rawItems : [];
 
-  // Pay-For-Me & Shipping Modal States
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [payForMeLoading, setPayForMeLoading] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState("");
@@ -37,7 +36,6 @@ const Cart = () => {
     city: "",
     pincode: "",
     country: "Bangladesh",
-    state: "",
   });
 
   const handleInputChange = (e) => {
@@ -96,7 +94,10 @@ const Cart = () => {
 
       const payload = {
         orderedItems: cartItems,
-        shipping_info: shippingInfo,
+        shipping_info: {
+          ...shippingInfo,
+          state: city, 
+        },
       };
 
       const { data } = await axios.post(
@@ -255,7 +256,6 @@ const Cart = () => {
               );
             })}
           </div>
-
         
           <div className="lg:col-span-4 space-y-6">
             <div className="p-6 rounded-[32px] bg-white dark:bg-[#150d11] border border-slate-200/80 dark:border-white/10 shadow-lg space-y-6 sticky top-24">
@@ -308,7 +308,7 @@ const Cart = () => {
                   className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-xs sm:text-sm text-[#9c5b6f] dark:text-[#e4a8b8] bg-[#9c5b6f]/10 dark:bg-[#9c5b6f]/20 hover:bg-[#9c5b6f]/20 dark:hover:bg-[#9c5b6f]/30 border border-[#9c5b6f]/20 active:scale-95 transition-all cursor-pointer"
                 >
                   <Gift className="w-4 h-4" />
-                  <span>Ask Someone to Pay(Pay-For-Me)</span>
+                  <span>Ask Someone to Pay (Pay-For-Me)</span>
                 </button>
               </div>
             </div>
@@ -341,16 +341,17 @@ const Cart = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
-                 <input
-  type="text"
-  name="full_name"
-  required
-  autoComplete="off"
-  value={shippingInfo.full_name}
-  onChange={handleInputChange}
-  placeholder="Full Name"
-  className="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-xs text-slate-700 dark:text-slate-200 outline-none"
-/>
+                  <input
+                    type="text"
+                    name="full_name"
+                    required
+                    autoComplete="off"
+                    data-lpignore="true"
+                    value={shippingInfo.full_name}
+                    onChange={handleInputChange}
+                    placeholder="Full Name"
+                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-xs text-slate-700 dark:text-slate-200 outline-none"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
@@ -358,6 +359,8 @@ const Cart = () => {
                     type="text"
                     name="phone"
                     required
+                    autoComplete="off"
+                    data-lpignore="true"
                     value={shippingInfo.phone}
                     onChange={handleInputChange}
                     placeholder="017xxxxxxxx"
@@ -372,6 +375,8 @@ const Cart = () => {
                   type="text"
                   name="address"
                   required
+                  autoComplete="off"
+                  data-lpignore="true"
                   value={shippingInfo.address}
                   onChange={handleInputChange}
                   placeholder="House/Road, Area"
@@ -379,25 +384,16 @@ const Cart = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">City</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">City / District</label>
                   <input
                     type="text"
                     name="city"
                     required
+                    autoComplete="off"
+                    data-lpignore="true"
                     value={shippingInfo.city}
-                    onChange={handleInputChange}
-                    placeholder="Chittagong"
-                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-xs text-slate-700 dark:text-slate-200 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">State</label>
-                  <input
-                    type="text"
-                    name="state"
-                    value={shippingInfo.state}
                     onChange={handleInputChange}
                     placeholder="Chittagong"
                     className="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-xs text-slate-700 dark:text-slate-200 outline-none"
@@ -409,6 +405,8 @@ const Cart = () => {
                     type="text"
                     name="pincode"
                     required
+                    autoComplete="off"
+                    data-lpignore="true"
                     value={shippingInfo.pincode}
                     onChange={handleInputChange}
                     placeholder="4000"
@@ -469,7 +467,7 @@ const Cart = () => {
             {/* Social Share Options */}
             <div className="space-y-2 pt-1">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Share directly via:</p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <a
                   href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
                     `Hey! Could you please help me pay for my order here: ${paymentUrl}`
@@ -491,26 +489,6 @@ const Cart = () => {
                 >
                   <span>Facebook</span>
                 </a>
-
-                {navigator.share && (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      try {
-                        await navigator.share({
-                          title: "Pay For My Order",
-                          text: "Please help me complete the payment for my order:",
-                          url: paymentUrl,
-                        });
-                      } catch (err) {
-                        console.log("Error sharing:", err);
-                      }
-                    }}
-                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-[#9c5b6f]/10 hover:bg-[#9c5b6f]/20 text-[#9c5b6f] dark:text-[#e4a8b8] font-bold text-xs transition-all cursor-pointer"
-                  >
-                    <span>More</span>
-                  </button>
-                )}
               </div>
             </div>
 
