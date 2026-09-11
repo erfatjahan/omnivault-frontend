@@ -35,17 +35,23 @@ const PayForMe = () => {
     try {
       setPaying(true);
       toast.info("Initializing payment gateway...");
+
       const { data } = await axios.post(
-        `https://omnivault-backend-83uu.onrender.com/api/v1/order/pay-for-me/pay/${token}`,
-        {},
+        `https://omnivault-backend-83uu.onrender.com/api/v1/payment/ssl-init`,
+        {
+          orderId: order.id,
+          totalPrice: order.total_price,
+          shippingInfo: order.shipping_info || {},
+        },
         { withCredentials: true }
       );
 
-      if (data.success && data.paymentUrl) {
-        window.location.href = data.paymentUrl; 
+      const gatewayUrl = data.gatewayUrl || data.paymentUrl;
+
+      if (data.success && gatewayUrl) {
+        window.location.href = gatewayUrl; 
       } else {
-        toast.success("Payment completed successfully!");
-        navigate("/");
+        toast.error("Failed to initialize payment gateway.");
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Payment failed. Please try again.");
