@@ -11,6 +11,7 @@ import {
   User,
   LogIn,
   ClipboardList,
+  Heart,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -37,6 +38,7 @@ const Sidebar = () => {
     { name: "Home", path: "/", icon: Home, type: "link" },
     { name: "Products", path: "/products", icon: Package, type: "link" },
     { name: "Shopping Bag", icon: ShoppingBag, type: "cart", badge: cartItemsCount },
+    { name: "My Wishlist", path: "/wishlist", icon: Heart, type: "link" },
     ...(authUser
       ? [{ name: "My Orders", path: "/orders", icon: ClipboardList, type: "link" }]
       : []),

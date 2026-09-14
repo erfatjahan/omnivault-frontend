@@ -13,10 +13,12 @@ import ProfilePanel from "./components/Layout/ProfilePanel";
 import LoginModal from "./components/Layout/LoginModal";
 import Footer from "./components/Layout/Footer";
 
+
 // Pages
 import Index from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
+import Wishlist from "./pages/Wishlist";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Payment from "./pages/Payment";
@@ -70,6 +72,7 @@ const MainLayout = () => {
           <Route path="/password/reset/:token" element={<Index />} />
           <Route path="/products" element={<Products />} />
           <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/payment" element={<Payment />} />
