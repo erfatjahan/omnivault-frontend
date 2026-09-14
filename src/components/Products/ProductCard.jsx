@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useDispatch,useSelector } from "react-redux";
 import { addToCart } from "../../store/slices/cartSlice";
 import { toggleCart } from "../../store/slices/popupSlice";
-import { addToWishlist, removeFromWishlist } from "../../store/slices/wishlist";
+import { addToWishlist, removeFromWishlist } from "../../store/slices/wishlistSlice";
 import { toast } from "react-toastify";
 
 const ProductCard = ({ product }) => {
