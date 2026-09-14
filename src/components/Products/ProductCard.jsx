@@ -1,9 +1,11 @@
 import React from "react";
-import { Star, ShoppingBag } from "lucide-react";
+import { Star, ShoppingBag, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { addToCart } from "../../store/slices/cartSlice";
 import { toggleCart } from "../../store/slices/popupSlice";
+import { addToWishlist, removeFromWishlist } from "../../store/slices/wishlist";
+import { toast } from "react-toastify";
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
@@ -18,6 +20,24 @@ const ProductCard = ({ product }) => {
     "https://placehold.co/400x400?text=Product";
   const rating = Number(product.ratings || product.rating || 5);
   const isOutOfStock = product.stock !== undefined && Number(product.stock) <= 0;
+
+  const wishlistItems = useSelector((state) => state.wishlist?.wishlist || []);
+  const isWishlisted = wishlistItems.some(
+    (item) => (item._id || item.id || item.productId) === productId
+  );
+
+  const handleWishlistToggle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isWishlisted) {
+      dispatch(removeFromWishlist(productId));
+      toast.info("Removed from wishlist");
+    } else {
+      dispatch(addToWishlist(product));
+      toast.success("Added to wishlist!");
+    }
+  };
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -40,7 +60,6 @@ const ProductCard = ({ product }) => {
   return (
     <div className="group bg-white dark:bg-white/[0.04] backdrop-blur-xl rounded-2xl sm:rounded-[28px] border border-slate-200/80 dark:border-white/10 shadow-sm hover:shadow-xl dark:hover:border-[#9c5b6f]/40 transition-all duration-300 flex flex-col justify-between overflow-hidden hover:-translate-y-1 select-none">
       <div>
-  
         <Link
           to={`/product/${productId}`}
           className="block relative aspect-square overflow-hidden bg-slate-100 dark:bg-white/5 rounded-t-2xl sm:rounded-t-[28px]"
@@ -55,6 +74,7 @@ const ProductCard = ({ product }) => {
             }}
           />
 
+          {/* Stock Badge */}
           {isOutOfStock ? (
             <span className="absolute top-2.5 left-2.5 sm:top-3.5 sm:left-3.5 px-2 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider rounded-full bg-rose-500/90 text-white backdrop-blur-md">
               Sold Out
@@ -64,9 +84,24 @@ const ProductCard = ({ product }) => {
               In Stock
             </span>
           )}
+
+          {/* Wishlist Heart Button */}
+          <button
+            type="button"
+            onClick={handleWishlistToggle}
+            className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 p-2 rounded-full bg-white/90 dark:bg-black/60 shadow-md backdrop-blur-md transition-transform active:scale-90 cursor-pointer group/btn"
+            aria-label="Wishlist"
+          >
+            <Heart
+              className={`w-4 h-4 transition-colors ${
+                isWishlisted
+                  ? "text-[#9c5b6f] fill-[#9c5b6f]"
+                  : "text-slate-600 dark:text-slate-300 hover:text-[#9c5b6f]"
+              }`}
+            />
+          </button>
         </Link>
 
-  
         <div className="p-3.5 sm:p-5">
           <div className="flex items-center gap-1.5 mb-1.5 sm:mb-2">
             <div className="flex items-center gap-1 bg-amber-500/10 px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-lg">
@@ -88,7 +123,6 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
 
-  
       <div className="p-3.5 sm:p-5 pt-0 flex items-center justify-between mt-auto">
         <div>
           <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-rose-200/50 block leading-none mb-0.5 sm:mb-1">
