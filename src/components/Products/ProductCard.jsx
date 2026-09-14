@@ -1,10 +1,10 @@
 import React from "react";
 import { Star, ShoppingBag, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../store/slices/cartSlice";
-import { toggleCart } from "../store/slices/popupSlice";
-import { addToWishlist, removeFromWishlist } from "../store/slices/wishlistSlice";
+import { useDispatch,useSelector } from "react-redux";
+import { addToCart } from "../../store/slices/cartSlice";
+import { toggleCart } from "../../store/slices/popupSlice";
+import { addToWishlist, removeFromWishlist } from "../../store/slices/wishlistSlice";
 import { toast } from "react-toastify";
 
 const ProductCard = ({ product }) => {
@@ -15,7 +15,6 @@ const ProductCard = ({ product }) => {
   const productId = product._id || product.id;
   const imageSrc =
     product.images?.[0]?.url ||
-    
     product.images?.[0] ||
     product.image ||
     "https://placehold.co/400x400?text=Product";
@@ -130,7 +129,7 @@ const ProductCard = ({ product }) => {
             Price
           </span>
           <span className="text-base sm:text-lg font-extrabold text-[#9c5b6f] dark:text-[#e4a8b8]">
-            ৳{Number(product.price || 0).toFixed(2)}
+            {Number(product.price || 0).toFixed(2)}
           </span>
         </div>
 
