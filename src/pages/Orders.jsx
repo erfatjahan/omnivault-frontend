@@ -46,6 +46,8 @@ const MyOrders = () => {
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
 
+  const [payingOrderId, setPayingOrderId] = useState(null);
+
   useEffect(() => {
     dispatch(fetchMyOrders());
   }, [dispatch]);
@@ -67,6 +69,30 @@ const MyOrders = () => {
       return matchesFilter && matchesSearch;
     });
   }, [myOrders, filterStatus, searchQuery]);
+
+  const handlePayNow = async (orderId, totalPrice) => {
+    try {
+      setPayingOrderId(orderId);
+      toast.info("Connecting to payment gateway...");
+      
+      const { data } = await axiosInstance.post(
+        "/payment/ssl-init",
+        { orderId, totalPrice },
+        { withCredentials: true }
+      );
+
+      if (data.success && (data.gatewayUrl || data.paymentUrl)) {
+        window.location.href = data.gatewayUrl || data.paymentUrl;
+      } else {
+        toast.error(data.message || "Failed to initialize payment gateway.");
+      }
+    } catch (error) {
+      console.error("Payment Error:", error);
+      toast.error(error.response?.data?.message || "Something went wrong during payment initialization.");
+    } finally {
+      setPayingOrderId(null);
+    }
+  };
 
   const handleReorder = (items) => {
     if (!items || items.length === 0) return;
@@ -398,19 +424,17 @@ const MyOrders = () => {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2 pt-2">
-                        {order.payment_status === "Unpaid" && (order.payment_method === "SSLCommerz" || order.payment_details?.payment_type === "SSLCommerz") && (
+                        {order.payment_status === "Unpaid" && !isCancelled && (
                           <button
                             type="button"
-                            onClick={() => {
-                              if (order.payment_details?.payment_url) {
-                                window.location.href = order.payment_details.payment_url;
-                              } else {
-                                toast.info("Redirecting to payment gateway...");
-                              }
-                            }}
-                            className="flex-1 py-2 px-3 bg-[#9c5b6f] text-white text-[11px] font-bold rounded-xl shadow hover:bg-[#854b5d] transition-all text-center cursor-pointer"
+                            disabled={payingOrderId === order.id}
+                            onClick={() => handlePayNow(order.id, order.total_price)}
+                            className="flex-1 py-2 px-3 bg-[#9c5b6f] text-white text-[11px] font-bold rounded-xl shadow hover:bg-[#854b5d] transition-all text-center cursor-pointer inline-flex items-center justify-center gap-1.5 disabled:opacity-50"
                           >
-                            Pay Now
+                            {payingOrderId === order.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : null}
+                            <span>{payingOrderId === order.id ? "Processing..." : "Pay Now"}</span>
                           </button>
                         )}
                         
@@ -441,11 +465,11 @@ const MyOrders = () => {
           </div>
         )}
 
+        {/* Invoice Modal */}
         {isInvoiceOpen && selectedInvoiceOrder && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
             <div className="bg-white dark:bg-[#1e293b] w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6 max-h-[90vh] overflow-y-auto">
               
-              {/* Modal Header */}
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 print:hidden">
                 <h3 className="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
                   <FileText className="w-4 h-4 text-[#9c5b6f]" /> Official Store Invoice
@@ -459,7 +483,6 @@ const MyOrders = () => {
                 </button>
               </div>
 
-              {/* Printable Invoice Body */}
               <div className="space-y-6 text-slate-800 dark:text-slate-100">
                 <div className="text-center pb-4 border-b-2 border-[#9c5b6f]">
                   <h2 className="text-xl font-black text-[#9c5b6f]">STORE INVOICE</h2>
@@ -511,7 +534,6 @@ const MyOrders = () => {
                 </div>
               </div>
 
-              {/* Modal Footer (Action Buttons) */}
               <div className="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800 print:hidden">
                 <button
                   type="button"
