@@ -15,6 +15,7 @@ const ProductCard = ({ product }) => {
   const productId = product._id || product.id;
   const imageSrc =
     product.images?.[0]?.url ||
+    
     product.images?.[0] ||
     product.image ||
     "https://placehold.co/400x400?text=Product";
