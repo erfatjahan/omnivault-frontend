@@ -241,11 +241,11 @@ const ProductDetail = () => {
 
             <div className="flex items-baseline gap-3 p-4 rounded-2xl bg-white/70 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
               <span className="text-3xl font-black text-[#9c5b6f] dark:text-[#e4a8b8]">
-                ${productPrice.toFixed(2)}
+                ৳{productPrice.toFixed(2)}
               </span>
               {originalPrice > 0 && originalPrice > productPrice && (
                 <span className="text-sm font-semibold text-slate-400 line-through">
-                  ${originalPrice.toFixed(2)}
+                  ৳{originalPrice.toFixed(2)}
                 </span>
               )}
             </div>
