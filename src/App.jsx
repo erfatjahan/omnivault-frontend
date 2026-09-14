@@ -77,6 +77,7 @@ const MainLayout = () => {
           <Route path="/orders" element={<Orders />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/pay-for-me/:token" element={<PayForMe />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contact" element={<Contact />} />
