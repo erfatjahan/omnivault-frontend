@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ReviewsContainer from "../components/Products/ReviewsContainer";
 import { addToCart } from "../store/slices/cartSlice";
 import { fetchProductDetails } from "../store/slices/productSlice";
-import { addToWishlist, removeFromWishlist } from "../store/slices/wishlist";
+import { addToWishlist, removeFromWishlist } from "../store/slices/wishlistSlice";
 import { toast } from "react-toastify";
 
 const ProductDetail = () => {
