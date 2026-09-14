@@ -131,7 +131,8 @@ const Payment = () => {
       };
 
       const orderRes = await axiosInstance.post("/order/new", orderPayload);
-      const resData = orderRes.data;
+      const orderId = orderRes.data.orderId || orderRes.data.order?.id;
+
       if (paymentMethod === "cod") {
         dispatch(clearCart());
         localStorage.removeItem("cartItems");
@@ -140,12 +141,26 @@ const Payment = () => {
         return;
       }
 
-      const paymentGatewayUrl = resData.paymentUrl || resData.gatewayUrl;
+      const sslRes = await axiosInstance.post("/payment/ssl-init", {
+        orderId,
+        totalPrice: totalAmount,
+        shippingInfo: {
+          fullName,
+          phone,
+          address,
+          city,
+          state,
+          country,
+          pincode,
+        },
+      });
 
-      if (paymentGatewayUrl) {
+      const gatewayUrl = sslRes.data?.gatewayUrl || sslRes.data?.paymentUrl;
+
+      if (sslRes.data?.success && gatewayUrl) {
         dispatch(clearCart());
         localStorage.removeItem("cartItems");
-        window.location.href = paymentGatewayUrl;
+        window.location.href = gatewayUrl; 
       } else {
         toast.error("Failed to retrieve payment gateway URL.");
       }
