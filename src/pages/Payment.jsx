@@ -138,9 +138,11 @@ const Payment = () => {
       
       const orderId = orderRes.data.orderId || orderRes.data.order?.id;
 
+      dispatch(clearCart());
+      localStorage.removeItem("cartItems");
+      localStorage.removeItem("cart");
+
       if (paymentMethod === "cod") {
-        dispatch(clearCart());
-        localStorage.removeItem("cartItems");
         toast.success("Order placed successfully with Cash on Delivery!");
         navigate("/orders");
         return;
@@ -167,8 +169,6 @@ const Payment = () => {
       const gatewayUrl = sslRes.data?.gatewayUrl || sslRes.data?.paymentUrl;
 
       if (sslRes.data?.success && gatewayUrl) {
-        dispatch(clearCart());
-        localStorage.removeItem("cartItems");
         window.location.href = gatewayUrl;
       } else {
         toast.error("Failed to retrieve payment gateway URL.");
