@@ -10,7 +10,7 @@ import {
   Banknote, 
   CheckCircle2 
 } from "lucide-react";
-import { axiosInstance } from "../lib/axios";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { clearCart } from "../store/slices/cartSlice";
 
@@ -130,7 +130,12 @@ const Payment = () => {
         }),
       };
 
-      const orderRes = await axiosInstance.post("/order/new", orderPayload);
+      const orderRes = await axios.post(
+        "https://omnivault-backend-83uu.onrender.com/api/v1/order/new",
+        orderPayload,
+        { withCredentials: true }
+      );
+      
       const orderId = orderRes.data.orderId || orderRes.data.order?.id;
 
       if (paymentMethod === "cod") {
@@ -141,26 +146,30 @@ const Payment = () => {
         return;
       }
 
-      const sslRes = await axiosInstance.post("/payment/ssl-init", {
-        orderId,
-        totalPrice: totalAmount,
-        shippingInfo: {
-          fullName,
-          phone,
-          address,
-          city,
-          state,
-          country,
-          pincode,
+      const sslRes = await axios.post(
+        "https://omnivault-backend-83uu.onrender.com/api/v1/payment/ssl-init",
+        {
+          orderId,
+          totalPrice: totalAmount,
+          shippingInfo: {
+            fullName,
+            phone,
+            address,
+            city,
+            state,
+            country,
+            pincode,
+          },
         },
-      });
+        { withCredentials: true }
+      );
 
       const gatewayUrl = sslRes.data?.gatewayUrl || sslRes.data?.paymentUrl;
 
       if (sslRes.data?.success && gatewayUrl) {
         dispatch(clearCart());
         localStorage.removeItem("cartItems");
-        window.location.href = gatewayUrl; 
+        window.location.href = gatewayUrl;
       } else {
         toast.error("Failed to retrieve payment gateway URL.");
       }
