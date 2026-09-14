@@ -166,7 +166,7 @@ const ProductSlider = ({ title, products = [] }) => {
                     Price
                   </span>
                   <span className="text-lg font-extrabold text-[#9c5b6f] dark:text-[#e4a8b8]">
-                    ${Number(product?.price || 0).toFixed(2)}
+                    ৳{Number(product?.price || 0).toFixed(2)}
                   </span>
                 </div>
 
