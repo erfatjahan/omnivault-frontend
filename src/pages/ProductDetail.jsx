@@ -17,15 +17,17 @@ import { useDispatch, useSelector } from "react-redux";
 import ReviewsContainer from "../components/Products/ReviewsContainer";
 import { addToCart } from "../store/slices/cartSlice";
 import { fetchProductDetails } from "../store/slices/productSlice";
+import { addToWishlist, removeFromWishlist } from "../store/slices/wishlist";
+import { toast } from "react-toastify";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
 
- 
   const productState = useSelector((state) => state.product || {});
   const { loading = false, productReviews = [] } = productState;
 
+  const wishlistItems = useSelector((state) => state.wishlist?.wishlist || []);
 
   const rawProduct =
     productState.productDetails?.product ||
@@ -40,10 +42,15 @@ const ProductDetail = () => {
       ? rawProduct
       : null;
 
+  const productId = product?._id || product?.id || id;
+
+  const isWishlisted = wishlistItems.some(
+    (item) => (item._id || item.id || item.productId) === productId
+  );
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -51,7 +58,6 @@ const ProductDetail = () => {
       window.scrollTo(0, 0);
     }
   }, [dispatch, id]);
-
 
   if (loading) {
     return (
@@ -63,7 +69,6 @@ const ProductDetail = () => {
       </div>
     );
   }
-
 
   if (!product) {
     return (
@@ -86,7 +91,6 @@ const ProductDetail = () => {
     );
   }
 
-  // ৪. প্রাইস, স্টক ও রেটিং পার্সিং
   const productPrice = Number(
     product.price ??
     product.unit_price ??
@@ -143,7 +147,6 @@ const ProductDetail = () => {
   const currentImage = imagesList[selectedImage] || imagesList[0];
 
   const handleAddToCart = () => {
-    const productId = product.id || product._id || id;
     dispatch(
       addToCart({
         id: productId,
@@ -155,6 +158,17 @@ const ProductDetail = () => {
         quantity,
       })
     );
+    toast.success("Added to cart!");
+  };
+
+  const handleWishlistToggle = () => {
+    if (isWishlisted) {
+      dispatch(removeFromWishlist(productId));
+      toast.info("Removed from wishlist");
+    } else {
+      dispatch(addToWishlist(product));
+      toast.success("Added to wishlist!");
+    }
   };
 
   return (
@@ -162,7 +176,6 @@ const ProductDetail = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
-      
           <div className="lg:col-span-6 space-y-4">
             <div className="relative aspect-square rounded-[32px] overflow-hidden bg-white dark:bg-[#150d11] border border-slate-200/80 dark:border-white/10 shadow-lg group">
               <img
@@ -171,12 +184,12 @@ const ProductDetail = () => {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
               {productStock <= 5 && productStock > 0 && (
-                <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-amber-500/90 backdrop-blur-md text-slate-950 text-[10px] font-black uppercase tracking-wider">
+                <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-amber-500/95 backdrop-blur-md text-slate-950 text-[10px] font-black uppercase tracking-wider">
                   Limited Stock
                 </span>
               )}
               {productStock === 0 && (
-                <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-rose-500/90 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider">
+                <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-rose-500/95 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider">
                   Out of Stock
                 </span>
               )}
@@ -226,14 +239,13 @@ const ProductDetail = () => {
               </div>
             </div>
 
-         
             <div className="flex items-baseline gap-3 p-4 rounded-2xl bg-white/70 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
               <span className="text-3xl font-black text-[#9c5b6f] dark:text-[#e4a8b8]">
-                {productPrice.toFixed(2)}
+                ${productPrice.toFixed(2)}
               </span>
               {originalPrice > 0 && originalPrice > productPrice && (
                 <span className="text-sm font-semibold text-slate-400 line-through">
-                  {originalPrice.toFixed(2)}
+                  ${originalPrice.toFixed(2)}
                 </span>
               )}
             </div>
@@ -242,7 +254,6 @@ const ProductDetail = () => {
               {product.description || "Crafted with premium materials for unmatched durability and comfort."}
             </p>
 
-         
             <div className="space-y-4 pt-2">
               <div className="flex items-center gap-4">
                 <span className="text-xs font-bold text-slate-700 dark:text-rose-100">Quantity:</span>
@@ -278,9 +289,10 @@ const ProductDetail = () => {
                   <span>{productStock === 0 ? "Out of Stock" : "Add to Cart"}</span>
                 </button>
 
+                {/* Wishlist Heart Button */}
                 <button
                   type="button"
-                  onClick={() => setIsWishlisted(!isWishlisted)}
+                  onClick={handleWishlistToggle}
                   className={`p-3.5 rounded-2xl border transition-all cursor-pointer active:scale-95 ${
                     isWishlisted
                       ? "bg-rose-500/10 border-rose-500/30 text-rose-500"
@@ -288,7 +300,7 @@ const ProductDetail = () => {
                   }`}
                   aria-label="Wishlist"
                 >
-                  <Heart className={`w-4 h-4 ${isWishlisted ? "fill-current" : ""}`} />
+                  <Heart className={`w-4 h-4 ${isWishlisted ? "fill-current text-[#9c5b6f]" : ""}`} />
                 </button>
 
                 <button
@@ -296,6 +308,9 @@ const ProductDetail = () => {
                   onClick={() => {
                     if (navigator.share) {
                       navigator.share({ title: product.name || product.title, url: window.location.href });
+                    } else {
+                      navigator.clipboard.writeText(window.location.href);
+                      toast.info("Link copied to clipboard!");
                     }
                   }}
                   className="p-3.5 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-rose-100 hover:border-[#9c5b6f] transition-all cursor-pointer"
@@ -306,7 +321,6 @@ const ProductDetail = () => {
               </div>
             </div>
 
-           
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-200/60 dark:border-white/10 text-[11px] font-semibold text-slate-500 dark:text-rose-200/60">
               <div className="flex items-center gap-1.5">
                 <Truck className="w-4 h-4 text-[#9c5b6f]" />
@@ -324,7 +338,6 @@ const ProductDetail = () => {
           </div>
         </div>
 
-      
         <div className="pt-8">
           <div className="flex items-center gap-4 border-b border-slate-200/80 dark:border-white/10 mb-6">
             <button
