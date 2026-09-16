@@ -111,6 +111,10 @@ const Cart = () => {
         setShowAddressModal(false);
         setShowShareModal(true);
         toast.success("Pay-For-Me link generated successfully!");
+
+        if (clearCart) {
+          dispatch(clearCart());
+        }
       }
     } catch (error) {
       toast.error(
