@@ -86,14 +86,13 @@ const PayForMe = () => {
         
         <div className="text-center space-y-2 pb-4 border-b border-slate-100 dark:border-white/10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#9c5b6f]/10 dark:bg-[#9c5b6f]/20 text-[#9c5b6f] dark:text-[#e4a8b8] text-[11px] font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Secure Gift Cart Payment</span>
+            <span>Gift Cart Payment</span>
           </div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100">
             Complete the Payment
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-rose-200/60">
-            Someone has requested you to pay for their order. Review the items below.
+            Someone has requested you to pay for their order.Review the items below.
           </p>
         </div>
 
@@ -129,7 +128,7 @@ const PayForMe = () => {
           disabled={paying}
           className="w-full inline-flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-[#9c5b6f] to-[#b36b81] hover:from-[#854b5d] hover:to-[#9c5b6f] shadow-lg shadow-[#9c5b6f]/30 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
         >
-          <span>{paying ? "Processing..." : `Pay ৳${Number(order.total_price || 0).toFixed(2)} Now`}</span>
+          <span>{paying ? "Processing..." : `Pay Now`}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
 
