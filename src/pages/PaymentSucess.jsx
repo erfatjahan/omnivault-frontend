@@ -38,10 +38,6 @@ const PaymentSuccess = () => {
 
         {/* Heading & Thank You Message */}
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Secure Gift Payment</span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
             Thank You!
           </h1>
@@ -53,12 +49,11 @@ const PaymentSuccess = () => {
         </div>
 
         {/* Safe Exit Notice */}
-        {isPayForMe && (
+        {/* {isPayForMe && (
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-xs text-slate-500 dark:text-rose-200/70">
             You can now safely close this window using the cross icon or your browser tab.
           </div>
-        )}
-
+        )} */}
       </div>
     </div>
   );
