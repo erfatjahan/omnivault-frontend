@@ -112,9 +112,9 @@ const Cart = () => {
         setShowShareModal(true);
         toast.success("Pay-For-Me link generated successfully!");
 
-        if (clearCart) {
-          dispatch(clearCart());
-        }
+        // if (clearCart) {
+        //   dispatch(clearCart());
+        // }
       }
     } catch (error) {
       toast.error(
@@ -504,7 +504,10 @@ const Cart = () => {
             <div className="pt-2 flex justify-end">
               <button
                 type="button"
-                onClick={() => setShowShareModal(false)}
+                onClick={() => {
+                  dispatch(clearCart()); 
+                  setShowShareModal(false);
+                }}
                 className="w-full py-3 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all cursor-pointer"
               >
                 Done
