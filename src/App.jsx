@@ -22,6 +22,7 @@ import Wishlist from "./pages/Wishlist";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Payment from "./pages/Payment";
+import PaymentSuccess from "./pages/PaymentSucess";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
