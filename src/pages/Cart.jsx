@@ -14,15 +14,7 @@ import { toast } from "react-toastify";
 const Cart = () => {
   const dispatch = useDispatch();
 
-  const cartState = useSelector((state) => state.cart || {});
-  
-  const rawItems =
-    cartState.cartItems ||
-    cartState.items ||
-    cartState.cart ||
-    (Array.isArray(cartState) ? cartState : []);
-
-  const cartItems = Array.isArray(rawItems) ? rawItems : [];
+  const cartItems = useSelector((state) => state.cart.cart || []);
 
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [payForMeLoading, setPayForMeLoading] = useState(false);
@@ -112,9 +104,9 @@ const Cart = () => {
         setShowShareModal(true);
         toast.success("Pay-For-Me link generated successfully!");
 
-        // if (clearCart) {
-        //   dispatch(clearCart());
-        // }
+        dispatch(clearCart());
+        localStorage.removeItem("cartItems");
+        localStorage.removeItem("cart");
       }
     } catch (error) {
       toast.error(
@@ -480,7 +472,7 @@ const Cart = () => {
                 <a
                   href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
                     `Hey! Could you please help me pay for my order here: ${paymentUrl}`
-                  )}`}
+                  )}` }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs transition-all"
@@ -504,10 +496,7 @@ const Cart = () => {
             <div className="pt-2 flex justify-end">
               <button
                 type="button"
-                onClick={() => {
-                  dispatch(clearCart()); 
-                  setShowShareModal(false);
-                }}
+                onClick={() => setShowShareModal(false)}
                 className="w-full py-3 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all cursor-pointer"
               >
                 Done
