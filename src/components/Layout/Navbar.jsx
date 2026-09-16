@@ -21,19 +21,23 @@ import {
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
-  // const [isScrolled, setIsScrolled] = useState(false);
-    const [setIsScrolled] = useState(false);
-
+  const [, setIsScrolled] = useState(false);
 
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isPaymentSuccessPage = location.pathname.includes("/payment-success");
+
+  if (isPaymentSuccessPage) {
+    return null;
+  }
+
   const authState = useSelector((state) => state.auth || {});
   const currentUser = authState.user || authState.authUser || null;
   const userRole = currentUser?.role;
 
-  const isAdminOrSuperAdmin = userRole === "admin" || userRole === "SuperAdmin"||userRole === "Admin";
+  const isAdminOrSuperAdmin = userRole === "admin" || userRole === "SuperAdmin" || userRole === "Admin";
 
   const cartState = useSelector((state) => state.cart || {});
   const rawCart =
