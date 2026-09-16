@@ -4,14 +4,11 @@ import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
 import { toggleAuthPopup } from "./popupSlice";
 
+
 export const register = createAsyncThunk(
   "auth/register",
   async (formData, thunkAPI) => {
     try {
-      localStorage.removeItem("cartItems");
-      localStorage.removeItem("cart");
-      localStorage.removeItem("wishlist");
-
       const response = await axiosInstance.post("/auth/register", formData);
       toast.success(response.data.message || "Registration successful!");
       if (response.data?.token) {
@@ -35,11 +32,6 @@ export const login = createAsyncThunk(
   "auth/login",
   async (formData, thunkAPI) => {
     try {
-     
-      localStorage.removeItem("cartItems");
-      localStorage.removeItem("cart");
-      localStorage.removeItem("wishlist");
-
       const response = await axiosInstance.post("/auth/login", formData);
       toast.success(response.data.message || "Logged in successfully!");
       if (response.data?.token) {
@@ -82,10 +74,6 @@ export const logout = createAsyncThunk(
       toast.success(response.data.message || "Logged out successfully!");
       
       localStorage.removeItem("token");
-      localStorage.removeItem("cartItems");
-      localStorage.removeItem("cart");
-      localStorage.removeItem("wishlist");
-
       thunkAPI.dispatch(toggleAuthPopup());
       return response.data;
     } catch (error) {
@@ -94,12 +82,7 @@ export const logout = createAsyncThunk(
         error.message ||
         "Logout failed.";
       toast.error(message);
-      
       localStorage.removeItem("token");
-      localStorage.removeItem("cartItems");
-      localStorage.removeItem("cart");
-      localStorage.removeItem("wishlist");
-
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -117,8 +100,7 @@ export const forgotPassword = createAsyncThunk(
       );
       toast.success(response.data.message || "Password reset link sent to your email!");
       return response.data;
-    }
-    catch (error) {
+    } catch (error) {
       const message =
         error.response?.data?.message ||
         error.message ||
@@ -167,7 +149,6 @@ export const updatePassword = createAsyncThunk(
     }
   }
 );
-
 export const updateProfile = createAsyncThunk(
   "auth/updateProfile",
   async (data, thunkAPI) => {
@@ -290,7 +271,7 @@ const authSlice = createSlice({
 
       // Update Password
       .addCase(updatePassword.pending, (state) => {
-        state.isUpdatingPassword = false;
+        state.isUpdatingPassword = true;
       })
       .addCase(updatePassword.fulfilled, (state) => {
         state.isUpdatingPassword = false;
