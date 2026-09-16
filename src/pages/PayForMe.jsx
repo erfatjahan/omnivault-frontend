@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useParams} from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { ShoppingBag, ShieldCheck, ArrowRight } from "lucide-react";
 
 const PayForMe = () => {
   const { token } = useParams();
-  // const navigate = useNavigate();
   
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -121,7 +120,7 @@ const PayForMe = () => {
         <div className="pt-4 border-t border-slate-100 dark:border-white/10 flex justify-between items-baseline">
           <span className="text-base font-extrabold text-slate-900 dark:text-slate-100">Total Amount</span>
           <span className="text-2xl font-black text-[#9c5b6f] dark:text-[#e4a8b8]">
-            ৳{order.total_price}
+            ৳{Number(order.total_price || 0).toFixed(2)}
           </span>
         </div>
 
@@ -130,7 +129,7 @@ const PayForMe = () => {
           disabled={paying}
           className="w-full inline-flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-[#9c5b6f] to-[#b36b81] hover:from-[#854b5d] hover:to-[#9c5b6f] shadow-lg shadow-[#9c5b6f]/30 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
         >
-          <span>{paying ? "Processing..." : `Pay ৳${order.total_price} Now`}</span>
+          <span>{paying ? "Processing..." : `Pay ৳${Number(order.total_price || 0).toFixed(2)} Now`}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
 
